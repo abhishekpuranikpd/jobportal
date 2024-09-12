@@ -12,7 +12,7 @@ const NavBar = () => {
   };
 
   return (
-    <nav className="fixed start-0 top-0 z-20 w-full mb-10 bg-[#FFFFFF] shadow-sm">
+    <nav className="container mx-auto fixed start-0 top-0 z-20 w-full mb-10 bg-[#FFFFFF] shadow-sm">
       <div className="mx-auto container flex max-w-screen-xl flex-wrap items-center justify-between py-4">
         <Link href="/">
           <span
@@ -78,7 +78,7 @@ const NavBar = () => {
         <div
           className={`${
             isOpen ? "left-0" : "-left-full"
-          } fixed top-0 h-full transition-all duration-300 ease-in-out md:hidden`}
+          } fixed top-0 h-full transition-all duration-300 w-[60%] ease-in-out md:hidden`}
         >
           <div className="p-4 bg-white h-full w-full relative">
             <button
@@ -100,16 +100,9 @@ const NavBar = () => {
                 />
               </svg>
             </button>
-            <h1
-              className=" text-yellow-200"
-              onMouseEnter={() => setIsHover(true)}
-              onMouseLeave={() => setIsHover(false)}
-            >
-       Job-Portal
-            </h1>
-            <hr className="w-auto h-1 mx-auto my-4 border-0 rounded md:my-10 dark:bg-yellow-200" />
-            <ol className="flex flex-col space-y-4 pt-6">
-              <li>
+         
+       <ol className="flex flex-col space-y-4 pt-6">
+              {/* <li>
                 <Link href="/">
                   <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
                     Home
@@ -157,7 +150,7 @@ const NavBar = () => {
               Talk to a Lawyer
               </span>
               </Link>
-              </li>
+              </li> */}
           
              
             </ol>

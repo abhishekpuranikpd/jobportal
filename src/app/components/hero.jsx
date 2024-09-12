@@ -18,10 +18,9 @@ import Image from "next/image";
 
 
 const JobSearchBar = ({ healthPackages }) => {
-  return (
-    <section className="text-[#243460] body-font">
-      {/* Hero Section */}
-      <div className="container mx-auto px-5 mt-[450px]">
+  return (<>
+  <section className="text-[#243460] hidden md:block min-h-screen body-font">
+  <div className="container mx-auto mt-20 px-5">
         <div className="text-center">
           <h1 className="text-[30px] text-[#5271FF] font-extrabold">
             <span>Unlock Your Dream Career</span>
@@ -66,65 +65,177 @@ const JobSearchBar = ({ healthPackages }) => {
           </div>
         </div>
       </div>
-
-      {/* Carousel Section */}
-      <div className="mt-8 flex justify-center items-center">
-  <Carousel opts={{ align: "start" }} className="md:w-full w-[80%]">
-    <CarouselContent>
-      {jobPosts.map((item, index) => (
-        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 basis-1/2 xl:basis-1/4 ">
-          <Card className=" h-auto mb-4">
-            <CardContent className="flex flex-col items-center p-2 rounded-3xl h-[280px] md:h-[300px]">
-              {/* Company Logo */}
-              <div className=" w-full bg-white rounded-3xl mb-4">
-                {item.companyLogo ? (
-                  <Image
-                    src={item.companyLogo}
-                    width={600}
-                    height={400}
-                    alt={item.companyName}
-                    className="object-cover bg-[#5271FF] rounded-3xl h-28"
-                  />
-                ) : (
-                  <div className="relative w-full h-28 md:h-28 justify-center items-center flex border-[#ffce38] rounded-3xl">Company Logo</div>
-                )}
-              </div>
-
-              {/* Company Name */}
-              <p className="text-[15px] font-bold text-[#243460] mb-2 text-center">
-                {item.companyName}
-              </p>
-
-              {/* Job Title */}
-              <p className="text-[13px] font-semibold text-[#ff5e00] mb-4 text-center">
-                {item.jobTitle}
-              </p>
-
-              {/* Posted Time */}
-              <div className="text-[12px] text-gray-500  mb-4">
-               <span className="right-0"> {item.postedAgo}</span>
-              </div>
-     
-              <div className="flex justify-center space-x-2 ">
-            <button className="bg-[#FF3131] text-white font-semibold text-sm p-2 rounded-xl shadow-md">
-            View Details 
-            </button>
-            <button className="bg-[#5271FF] text-white font-semibold text-sm p-2 rounded-xl shadow-md">
-              Apply Now
-            </button>
-          </div>
-            </CardContent>
-          </Card>
+      <div className="text-center mt-4">
          
-        </CarouselItem>
-      ))}
-    </CarouselContent>
-    <CarouselPrevious />
-    <CarouselNext />
-  </Carousel>
-</div>
+         <p className=" container mx-auto md:w-2/3 font-semibold text-[#243460]">
+       Popular / Latest Jobs
+         </p>
+       </div>
+      {/* Carousel Section */}
+      <div className="container mx-auto mt-8 flex justify-center items-center">
+    <Carousel opts={{ align: "start" }} className="container w-[70%] mx-auto">
+      <CarouselContent>
+        {jobPosts.map((item, index) => (
+          <CarouselItem key={index} className="w-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+            <Card className="h-auto mb-4">
+              <CardContent className="flex flex-col  p-2 rounded-3xl h-auto">
+                {/* Company Logo */}
+                <div className="w-full bg-white rounded-3xl mb-4">
+                  {item.companyLogo ? (
+                    <Image
+                      src={item.companyLogo}
+                      width={600}
+                      height={400}
+                      alt={item.companyName}
+                      className="object-cover bg-[#5271FF] rounded-3xl h-24 md:h-28"
+                    />
+                  ) : (
+                    <div className="relative w-full h-24 md:h-28 flex justify-center items-center border-[#ffce38] rounded-3xl">
+                      Company Logo
+                    </div>
+                  )}
+                </div>
+
+                {/* Company Name */}
+                <p className="text-[14px] md:text-[15px] font-bold text-[#243460] mb-2 text-center">
+                  {item.companyName}
+                </p>
+
+                {/* Job Title */}
+                <p className="text-[12px] md:text-[13px] font-semibold text-[#ff5e00] mb-4 text-center">
+                  {item.jobTitle}
+                </p>
+
+              
+
+                <div className="flex items-center gap-1">
+                  <button className="bg-[#FF3131] text-white font-semibold text-xs md:text-sm p-2 rounded-xl shadow-md w-full">
+                    View Details
+                  </button>
+                  <button className="bg-[#5271FF] text-white font-semibold text-xs md:text-sm p-2 rounded-xl shadow-md w-full">
+                    Apply Now
+                  </button>
+                </div>
+                  {/* Posted Time */}
+                  <div className="text-[10px] md:text-[12px] mt-2 text-end text-gray-500 mb-4">
+                  <span>{item.postedAgo}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious />
+      <CarouselNext />
+    </Carousel>
+  </div>
 
     </section>
+    <section className="text-[#243460] md:hidden block  body-font">
+  {/* Hero Section */}
+  <div className="container mx-auto px-5">
+    <div className="text-center">
+      <h1 className="text-xl md:text-[30px] text-[#5271FF] font-extrabold">
+        <span>Unlock Your Dream Career</span>
+      </h1>
+      <p className="mb-8 mx-auto md:w-2/3 font-semibold text-[#243460]">
+        Discover jobs matched to your goals. Start your career or take on new challenges with top employers. Join now!
+      </p>
+    </div>
+
+    {/* Search Bar */}
+    <div className="flex flex-col items-center container mx-auto">
+      <div className="w-full md:w-3/4 lg:w-2/3">
+        <div className="flex flex-col md:flex-row items-center md:border md:border-[#243460] p-3 bg-white rounded-full space-y-2 md:space-y-0 md:space-x-2">
+          <input
+            type="text"
+            placeholder="Job Type"
+            className="w-full border-r text-base outline-none py-2 px-3 leading-8 transition-colors duration-200 ease-in-out rounded-full mb-2 md:mb-0"
+          />
+          <input
+            type="text"
+            placeholder="Experience"
+            className="w-full border-r text-base outline-none py-2 px-3 leading-8 transition-colors duration-200 ease-in-out rounded-full mb-2 md:mb-0"
+          />
+          <input
+            type="text"
+            placeholder="Location"
+            className="w-full text-base outline-none py-2 px-3 leading-8 transition-colors duration-200 ease-in-out rounded-full mb-2 md:mb-0"
+          />
+          <button className="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded-full text-lg">
+            Search
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div className="text-center">
+         
+          <p className="mb-8 container mx-auto md:w-2/3 font-semibold text-[#243460]">
+        Popular / Latest Jobs
+          </p>
+        </div>
+  {/* Carousel Section */}
+  <div className="container mx-auto mt-8 flex justify-center items-center">
+    <Carousel opts={{ align: "start" }} className="container w-[70%] mx-auto">
+      <CarouselContent>
+        {jobPosts.map((item, index) => (
+          <CarouselItem key={index} className="w-full basis-1/1">
+            <Card className="h-auto mb-4">
+              <CardContent className="flex flex-col  p-2 rounded-3xl h-auto">
+                {/* Company Logo */}
+                <div className="w-full bg-white rounded-3xl mb-4">
+                  {item.companyLogo ? (
+                    <Image
+                      src={item.companyLogo}
+                      width={600}
+                      height={400}
+                      alt={item.companyName}
+                      className="object-cover bg-[#5271FF] rounded-3xl h-24 md:h-28"
+                    />
+                  ) : (
+                    <div className="relative w-full h-24 md:h-28 flex justify-center items-center border-[#ffce38] rounded-3xl">
+                      Company Logo
+                    </div>
+                  )}
+                </div>
+
+                {/* Company Name */}
+                <p className="text-[14px] md:text-[15px] font-bold text-[#243460] mb-2 text-center">
+                  {item.companyName}
+                </p>
+
+                {/* Job Title */}
+                <p className="text-[12px] md:text-[13px] font-semibold text-[#ff5e00] mb-4 text-center">
+                  {item.jobTitle}
+                </p>
+
+              
+
+                <div className="flex items-center gap-1">
+                  <button className="bg-[#FF3131] text-white font-semibold text-xs md:text-sm p-2 rounded-xl shadow-md w-full">
+                    View Details
+                  </button>
+                  <button className="bg-[#5271FF] text-white font-semibold text-xs md:text-sm p-2 rounded-xl shadow-md w-full">
+                    Apply Now
+                  </button>
+                </div>
+                  {/* Posted Time */}
+                  <div className="text-[10px] md:text-[12px] mt-2 text-end text-gray-500 mb-4">
+                  <span>{item.postedAgo}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious />
+      <CarouselNext />
+    </Carousel>
+  </div>
+</section>
+
+    </>
   );
 };
 
