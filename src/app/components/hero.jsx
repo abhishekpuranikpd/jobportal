@@ -146,7 +146,7 @@ const JobSearchBar = ({ healthPackages }) => {
     {/* Search Bar */}
     <div className="flex flex-col items-center container mx-auto">
       <div className="w-full md:w-3/4 lg:w-2/3">
-        <div className="flex flex-col md:flex-row items-center md:border md:border-[#243460] p-3 bg-white rounded-full space-y-2 md:space-y-0 md:space-x-2">
+        <div className="flex flex-col md:flex-row items-center md:border md:border-[#243460] p-3 bg-whitey space-y-2 md:space-y-0 md:space-x-2">
           <input
             type="text"
             placeholder="Job Type"

@@ -2,6 +2,15 @@
 import { useState } from "react";
 
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,38 +30,51 @@ const NavBar = () => {
             onMouseLeave={() => setIsHover(false)}
           >
             <span className="self-center text-2xl font-bold  text-[#243460]">
-           Job-Portal
+              Job-Portal
             </span>
           </span>
         </Link>
         <div className="hidden md:flex space-x-6 rtl:space-x-reverse md:order-2">
           <Link href="/">
             <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-            Jobs
+              Jobs
             </span>
           </Link>
           <Link href="/">
             <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-           Companies
+              Companies
             </span>
           </Link>
-          <Link href="/">
+          <Link href="/login">
             <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-            Login
+              Login
             </span>
           </Link>
-          <Link href="/">
+          <Link href="/register">
             <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
               Register
             </span>
           </Link>
-          <Link href="/">
-            <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-            For employers
-            </span>
-          </Link>
-         
-         
+          <DropdownMenu >
+            <DropdownMenuTrigger>
+              {" "}
+              <span className="cursor-pointer flex  items-center justify-center text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
+                For employers <ChevronDown className="h-5 w-4 mt-1 hover:underline hover:underline-offset-8" color="#243460" />
+              </span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+        
+              <DropdownMenuSeparator />
+              <DropdownMenuItem> <Link href={"/login"}><span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
+              Login
+            </span></Link> </DropdownMenuItem>
+              <DropdownMenuItem><Link href={"/register"}><span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
+              Register
+            </span></Link>  </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+       
         </div>
         <div className="flex space-x-3 rtl:space-x-reverse md:order-2 md:hidden md:space-x-0">
           <button
@@ -100,8 +122,8 @@ const NavBar = () => {
                 />
               </svg>
             </button>
-         
-       <ol className="flex flex-col space-y-4 pt-6">
+
+            <ol className="flex flex-col space-y-4 pt-6">
               {/* <li>
                 <Link href="/">
                   <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
@@ -151,8 +173,6 @@ const NavBar = () => {
               </span>
               </Link>
               </li> */}
-          
-             
             </ol>
           </div>
         </div>
