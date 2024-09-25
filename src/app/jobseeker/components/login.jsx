@@ -1,5 +1,5 @@
 "use client"
-import { signIn } from 'next-auth/react'
+
 
 import { redirect, useRouter } from 'next/navigation'
 import React, { useState } from 'react'
@@ -10,16 +10,30 @@ const Login = () => {
 	const router =useRouter();
 	const [email, setemail] = useState("")
 	const [password, setpassword] = useState("")
-	const handlesubmit = async (e) => {
-		e.preventDefault();
-		const res = await signIn("credentials", { email, password, redirect: false })
-		if(res?.error){
-			alert("invalid credential")
-		}else{
-			alert("login...success!!")
-			redirect("/profile")
-		}
-	}
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+       // Disable the button while submitting
+    
+        try {
+          const res = await fetch("/api/jobseeker/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json", // Important for JSON body
+            },
+            body: JSON.stringify({ email, password }),
+          });
+    
+          if (!res.ok) {
+            throw new Error("Failed to login an account");
+          }
+    
+          const data = await res.json();
+          alert("Login Success");
+          router.push("/jobseeker/profile");
+        } catch (error) {
+          alert("Something Went Wrong");
+        } 
+      };
 	
 	return (
 		<div className="flex min-h-screen flex-col mt-20 px-6 lg:px-8">
@@ -30,7 +44,7 @@ const Login = () => {
 		</div>
   
 		<div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-		  <form className="space-y-4" action="#" onSubmit={handlesubmit}>
+		  <form className="space-y-4" action="#" onSubmit={handleSubmit}>
 			{/* Email Input */}
 			<div>
 			  <label

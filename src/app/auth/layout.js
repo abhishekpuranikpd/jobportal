@@ -6,11 +6,11 @@ import { redirect } from "next/navigation"
 
 
 export default async function AuthLayout({ children }) {
-  // const user = await getCurrentUser()
+  const user = await getCurrentUser()
 
-  // if (user) {
-  //   redirect("")
-  // }
+  if (user) {
+    redirect("/profile")
+  }
  
   return (
     <>

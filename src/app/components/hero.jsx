@@ -133,7 +133,7 @@ const JobSearchBar = ({ healthPackages }) => {
     </section>
     <section className="text-[#243460] md:hidden block  body-font">
   {/* Hero Section */}
-  <div className="container mx-auto px-5">
+  <div className="container mx-auto pt-20 px-5">
     <div className="text-center">
       <h1 className="text-xl md:text-[30px] text-[#5271FF] font-extrabold">
         <span>Unlock Your Dream Career</span>

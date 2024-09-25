@@ -45,12 +45,12 @@ const NavBar = () => {
               Companies
             </span>
           </Link>
-          <Link href="/login">
+          <Link href="/jobseeker/login">
             <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
               Login
             </span>
           </Link>
-          <Link href="/register">
+          <Link href="/jobseeker/register">
             <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
               Register
             </span>
@@ -65,10 +65,10 @@ const NavBar = () => {
             <DropdownMenuContent>
         
               <DropdownMenuSeparator />
-              <DropdownMenuItem> <Link href={"/login"}><span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
+              <DropdownMenuItem> <Link href={"/jobseeker/login"}><span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
               Login
             </span></Link> </DropdownMenuItem>
-              <DropdownMenuItem><Link href={"/register"}><span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
+              <DropdownMenuItem><Link href={"jobseeker/register"}><span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
               Register
             </span></Link>  </DropdownMenuItem>
             </DropdownMenuContent>
