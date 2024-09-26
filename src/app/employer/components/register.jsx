@@ -19,7 +19,7 @@ const RegisterComponent = () => {
     setSuccessMessage(""); // Reset success message
 
     try {
-      const res = await fetch("/api/jobseeker/register", {
+      const res = await fetch("/api/employer/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json", // Important for JSON body
@@ -35,7 +35,7 @@ const RegisterComponent = () => {
       const data = await res.json();
       setSuccessMessage("Account Created Successfully! Redirecting...");
       setTimeout(() => {
-        router.push("/"); // Redirect after 2 seconds
+        router.push("/employer/login"); // Redirect after 2 seconds
       }, 2000);
     } catch (error) {
       setErrorMessage(error.message); // Set error message for UI display

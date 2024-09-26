@@ -2,6 +2,7 @@ import { getCurrentUser } from "../../lib/session"
 import Link from "next/link"
 
 import { redirect } from "next/navigation"
+import AuthNavBar from "../components/authheader"
 
 
 
@@ -14,19 +15,8 @@ export default async function AuthLayout({ children }) {
  
   return (
     <>
-      {/* <Link
-        href="/"
-       
-      >
-        Home
-      </Link>
-      <Link
-        href="/login"
-        
-      >
-        Login
-      </Link> */}
-      <div className="">{children}</div>
+      <div><AuthNavBar/></div>
+      <div className="mt-[20px]">{children}</div>
     </>
   )
 }

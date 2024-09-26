@@ -1,11 +1,11 @@
 
 import React from 'react'
-import RegisterForm from '../components/register'
+import Login from '../components/login'
 import AuthNavBar from '@/app/components/authheader'
 
 const RegisterPage = () => {
-  return (
-    <div><AuthNavBar/><RegisterForm/></div>
+  return ( 
+    <div><AuthNavBar/><Login/></div>
   )
 }
 

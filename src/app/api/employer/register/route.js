@@ -18,7 +18,7 @@ export async function POST(request) {
     const hashedpassword = await bcrypt.hash(password, 10);
 
     // Create a new job seeker
-    const user = await db.Jobseeker.create({
+    const user = await db.Employer.create({
       data: { name, email, password: hashedpassword },
     });
 

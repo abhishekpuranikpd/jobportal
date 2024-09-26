@@ -5,39 +5,36 @@ import { getSession } from "@/lib/jobseekerauth";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Jobseeker Admin",
+  title: "Employer ",
   description: "",
 };
 
 export default async function SuperAdminLayout({ children }) {
   const user = await getSession();
 
-  // Redirect if user is not authenticated
   if (!user) {
-    redirect("/jobseeker/login");
+    redirect("/employer/login");
   }
 
-  // Fetch user data from the database
-  const userdata = await db.Jobseeker.findFirst({
+  const userdata = await db.Employer.findFirst({
     where: {
       email: user.email,
     },
   });
-
-  // Ensure userdata exists before accessing its properties
   if (!userdata) {
     redirect("/jobseeker/login");
   }
-
   return (
     <>
-      <Header name={userdata.name} id={userdata.id} email={userdata.email} />
+      <div>
+        {" "}
+        <Header name={userdata.name} id={userdata.id} email={userdata.email} />
+      </div>{" "}
       <div className="pl-1">
+        {" "}
         <Sidebar name={userdata.name} />
       </div>
-      <div className="ml-[10px]">
-        {children}
-      </div>
+      <div className="ml-[10px]">{children}</div>
     </>
   );
 }

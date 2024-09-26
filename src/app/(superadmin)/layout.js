@@ -31,7 +31,7 @@ export default async function SuperAdminLayout({ children }) {
       </div>{" "}
       <div className="pl-1">
         {" "}
-        <Sidebar />
+        <Sidebar  name={name}/>
       </div>
       <div className="ml-[10px]">{children}</div>
     </>

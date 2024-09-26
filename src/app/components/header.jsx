@@ -17,7 +17,7 @@ const NavBar = () => {
   const [isHover, setIsHover] = useState(false);
 
   const toggleDrawer = () => {
-    setIsOpen(!isOpen);
+    setIsOpen(!isOpen); 
   };
 
   return (
