@@ -1,29 +1,39 @@
-
 import Header from "./components/header";
 import { getCurrentUser } from "@/lib/session";
 import { db } from "@/lib/db";
 import Sidebar from "./components/supersidebar";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Super Admin",
   description: "",
 };
-const user = await getCurrentUser();
 
-if (!user) {
-  redirect('/auth/login');
-}
+export default async function SuperAdminLayout({ children }) {
+  const user = await getCurrentUser();
 
-const userData = await db.user.findUnique({
-  where: {
-    id: user.id,
-  },
-});
+  if (!user) {
+    redirect("/auth/login");
+  }
 
-const {id, name, email } = userData;
+  const userData = await db.user.findUnique({
+    where: {
+      id: user.id,
+    },
+  });
 
-export default function SuperAdminLayout({ children }) {
-  return <>
-  <div>        <Header name={name} id={id} email={email}  /></div> <div className="pl-1">   <Sidebar /></div>
-  <div className="ml-[10px]">{children}</div></>;
+  const { id, name, email } = userData;
+  return (
+    <>
+      <div>
+        {" "}
+        <Header name={name} id={id} email={email} />
+      </div>{" "}
+      <div className="pl-1">
+        {" "}
+        <Sidebar />
+      </div>
+      <div className="ml-[10px]">{children}</div>
+    </>
+  );
 }

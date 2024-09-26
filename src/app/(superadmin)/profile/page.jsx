@@ -10,10 +10,6 @@ import UserProfile from '../components/userproile';
 const ProfilePage = async () => {
   const user = await getCurrentUser();
 
-  if (!user) {
-    redirect('/auth/login');
-  }
-
   const userData = await db.user.findUnique({
     where: {
       id: user.id,
