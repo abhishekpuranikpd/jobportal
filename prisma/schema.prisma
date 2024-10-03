@@ -48,24 +48,124 @@ model User {
 }
 
 model Jobseeker {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  fullName      String
+  email         String        @unique
   password      String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  phone         String? // Optional
+  resume        String? // Store resume as a URL or a file path
+  jobPreference JobPreference
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
+enum JobPreference {
+  FULL_TIME
+  PART_TIME
+  REMOTE
+  CONTRACT
+}
 
 model Employer {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String          @unique
+  password       String
+  companyWebsite String?
+  phoneNumber    String?
+  industry       String?
+  companySize    Int?
+  companyLogo    String?
+  emailVerified  DateTime?
+  image          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  jobs           Job[]           @relation("EmployerJobs")
+  draftSavedjobs DraftSavedJob[] @relation("EmployerDraftJobs")
+}
+
+enum ExperienceLevel {
+  ENTRY_LEVEL
+  MID_LEVEL
+  SENIOR_LEVEL
+}
+
+enum ApplicationMethod {
+  APPLY_VIA_WEBSITE
+  APPLY_VIA_EMAIL
+  APPLY_VIA_PLATFORM
+}
+
+enum JobCategory {
+  IT
+  HEALTHCARE
+  MARKETING
+  FINANCE
+  EDUCATION
+  OTHER // Add other categories as needed
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum EmploymentType {
+  PERMANENT
+  TEMPORARY
+  CONTRACT
+}
+
+model Job {
+  id                  String             @id @default(auto()) @map("_id") @db.ObjectId
+  employerId          String             @map("employer_id") @db.ObjectId
+  title               String?
+  description         String? // Can be rich text if needed
+  jobType             JobType
+  location            String // Can reference a separate Location model if needed
+  salaryMin           Float?
+  salaryMax           Float?
+  salaryNegotiable    Boolean?           @default(false)
+  category            JobCategory?
+  experienceLevel     ExperienceLevel?
+  skills              String[] // Array for multi-select skills
+  applicationDeadline DateTime?
+  employmentType      EmploymentType?
+  benefits            String? // Can be text or JSON for structured benefits
+  aboutCompany        String? // Pre-filled from employer's profile
+  applyMethod         ApplicationMethod?
+  applyUrl            String? // Conditional field for apply via website
+  applyEmail          String? // Conditional field for apply via email
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  employer Employer @relation("EmployerJobs", fields: [employerId], references: [id])
+}
+
+model DraftSavedJob {
+  id                  String             @id @default(auto()) @map("_id") @db.ObjectId
+  employerId          String             @map("employer_id") @db.ObjectId
+  title               String?
+  description         String? // Can be rich text if needed
+  jobType             JobType?
+  location            String // Can reference a separate Location model if needed
+  salaryMin           Float?
+  salaryMax           Float?
+  salaryNegotiable    Boolean?           @default(false)
+  category            JobCategory?
+  experienceLevel     ExperienceLevel?
+  skills              String[] // Array for multi-select skills
+  applicationDeadline DateTime?
+  employmentType      EmploymentType?
+  benefits            String? // Can be text or JSON for structured benefits
+  aboutCompany        String? // Pre-filled from employer's profile
+  applyMethod         ApplicationMethod?
+  applyUrl            String? // Conditional field for apply via website
+  applyEmail          String? // Conditional field for apply via email
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  isfinal             Boolean?           @default(false)
+  employer            Employer           @relation("EmployerDraftJobs", fields: [employerId], references: [id])
 }

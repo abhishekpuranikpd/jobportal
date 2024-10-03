@@ -1,77 +1,113 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 
-const RegisterComponent = () => {
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(""); // For error messages
-  const [successMessage, setSuccessMessage] = useState(""); // For success message
+const RegisterForm = () => {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
+    jobPreference: "FULL_TIME",
+    resume: null,
+  });
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, resume: e.target.files[0] });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // Disable the button while submitting
-    setErrorMessage(""); // Reset the error message before submitting
-    setSuccessMessage(""); // Reset success message
+    setErrorMessage("");
+    setSuccessMessage("");
+    setLoading(true); // Set loading to true
+
+    // Basic validation
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage("Passwords do not match");
+      setLoading(false); // Reset loading
+      return;
+    }
+
+    if (!formData.resume) {
+      setErrorMessage("Please upload your resume");
+      setLoading(false); // Reset loading
+      return;
+    }
 
     try {
-      const res = await fetch("/api/jobseeker/register", {
+      // Create form data to send the file and fields
+      const formDataFile = new FormData();
+      formDataFile.append("fullName", formData.fullName);
+      formDataFile.append("email", formData.email);
+      formDataFile.append("password", formData.password);
+      formDataFile.append("phone", formData.phone);
+      formDataFile.append("jobPreference", formData.jobPreference);
+      formDataFile.append("resume", formData.resume);
+
+      // Send the data to the registration API
+      const response = await fetch("/api/jobseeker/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Important for JSON body
-        },
-        body: JSON.stringify({ name, email, password }),
+        body: formDataFile,
       });
 
-      if (!res.ok) {
-        const errorData = await res.json(); // Get detailed error from the backend if available
-        throw new Error(errorData.message || "Failed to create an account");
+      if (!response.ok) {
+        const data = await response.json();
+        setErrorMessage(data.error || "Registration failed");
+      } else {
+        setSuccessMessage("Registration successful! Please log in.");
+        setFormData({
+          fullName: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          phone: "",
+          jobPreference: "FULL_TIME",
+          resume: null,
+        });
+        document.getElementById("resume").value = ""; // Clear file input
       }
-
-      const data = await res.json();
-      setSuccessMessage("Account Created Successfully! Redirecting...");
-      setTimeout(() => {
-        router.push("/"); // Redirect after 2 seconds
-      }, 2000);
     } catch (error) {
-      setErrorMessage(error.message); // Set error message for UI display
+      setErrorMessage("An error occurred while registering.");
+      console.error("Registration error:", error);
     } finally {
-      setIsSubmitting(false); // Re-enable the button after submission
+      setLoading(false); // Reset loading in any case
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col mt-20 px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="text-center text-2xl font-bold tracking-tight text-[#243460]">
+    <div className="flex min-h-screen flex-col mt-20 px-6 lg:px-8 bg-gray-50">
+      <div className="sm:mx-auto sm:w-full sm:max-w-2xl bg-white shadow-md rounded-lg p-8">
+        <h2 className="text-center text-3xl font-bold tracking-tight text-[#243460] mb-6">
           Create your account
         </h2>
-      </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-2" noValidate onSubmit={handleSubmit}>
-          {/* Name Input */}
+        <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
+          {/* Full Name */}
           <div>
             <label
-              htmlFor="name"
+              htmlFor="fullName"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
             >
-              Name
+              Full Name
             </label>
             <div className="mt-2">
               <input
-                id="name"
-                name="name"
+                id="fullName"
+                name="fullName"
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
+                value={formData.fullName}
+                onChange={handleChange}
                 required
-                className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Enter your full name"
+                className="block w-full rounded-xl border border-gray-300 pl-2 py-2 text-[#243460] shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 placeholder:text-gray-400"
               />
             </div>
           </div>
@@ -89,11 +125,12 @@ const RegisterComponent = () => {
                 id="email"
                 name="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                autoComplete="email"
+                value={formData.email}
+                onChange={handleChange}
                 required
-                className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Enter your email"
+                className="block w-full rounded-xl border border-gray-300 pl-2 py-2 text-[#243460] shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 placeholder:text-gray-400"
               />
             </div>
           </div>
@@ -111,55 +148,135 @@ const RegisterComponent = () => {
                 id="password"
                 name="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="*****"
+                value={formData.password}
+                onChange={handleChange}
                 required
-                className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="*****"
+                className="block w-full rounded-xl border border-gray-300 pl-2 py-2 text-[#243460] shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 placeholder:text-gray-400"
+              />
+            </div>
+          </div>
+
+          {/* Confirm Password Input */}
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
+            >
+              Confirm Password
+            </label>
+            <div className="mt-2">
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                placeholder="*****"
+                className="block w-full rounded-xl border border-gray-300 pl-2 py-2 text-[#243460] shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 placeholder:text-gray-400"
+              />
+            </div>
+          </div>
+
+          {/* Phone Input (Optional) */}
+          <div>
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
+            >
+              Phone (Optional)
+            </label>
+            <div className="mt-2">
+              <input
+                id="phone"
+                name="phone"
+                type="text"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Enter your phone number"
+                className="block w-full rounded-xl border border-gray-300 pl-2 py-2 text-[#243460] shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 placeholder:text-gray-400"
+              />
+            </div>
+          </div>
+
+          {/* Job Preference */}
+          <div>
+            <label
+              htmlFor="jobPreference"
+              className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
+            >
+              Job Preference
+            </label>
+            <div className="mt-2">
+              <select
+                id="jobPreference"
+                name="jobPreference"
+                value={formData.jobPreference}
+                onChange={handleChange}
+                className="block w-full rounded-xl border border-gray-300 pl-2 py-2 text-[#243460] shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              >
+                <option value="FULL_TIME">Full-time</option>
+                <option value="PART_TIME">Part-time</option>
+                <option value="REMOTE">Remote</option>
+                <option value="CONTRACT">Contract</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Resume Upload - Spans both columns */}
+          <div className="md:col-span-2">
+            <label
+              htmlFor="resume"
+              className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
+            >
+              Resume Upload
+            </label>
+            <div className="mt-2">
+              <input
+                id="resume"
+                name="resume"
+                type="file"
+                accept=".pdf,.png"
+                onChange={handleFileChange}
+                required
+                className="block w-full rounded-xl border border-gray-300 pl-2 py-2 text-[#243460] shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
               />
             </div>
           </div>
 
           {/* Submit Button */}
-          <div>
+          <div className="md:col-span-2">
             <button
               type="submit"
-              disabled={isSubmitting}
-              className={`flex w-full mt-10 justify-center rounded-xl px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
-                isSubmitting
-                  ? "cursor-not-allowed bg-gray-400"
-                  : "bg-indigo-600 hover:bg-indigo-500"
-              }`}
+              disabled={loading} // Disable button if loading
+              className={`flex w-full mt-6 justify-center rounded-xl ${loading ? "bg-gray-400" : "bg-indigo-600"} px-4 py-2 text-sm font-semibold leading-6 text-white shadow-md hover:bg-indigo-500 transition duration-200`}
             >
-              {isSubmitting ? "Creating Account..." : "Create Account"}
+              {loading ? "Creating Account..." : "Create Account"}
             </button>
           </div>
         </form>
 
-        {/* Show error message */}
+        {/* Display success or error messages */}
         {errorMessage && (
-          <p className="mt-2 text-center text-sm text-red-600">
-            {errorMessage}
-          </p>
+          <div className="mt-4 text-red-600 text-center">{errorMessage}</div>
         )}
-
-        {/* Show success message */}
         {successMessage && (
-          <p className="mt-2 text-center text-sm text-green-600">
-            {successMessage}
-          </p>
+          <div className="mt-4 text-green-600 text-center">{successMessage}</div>
         )}
 
-        {/* Login link */}
-        <p className="mt-10 text-center text-sm text-gray-500">
-          Already have an account?{" "}
-          <Link href="/jobseeker/login" className="font-semibold text-indigo-600 hover:text-indigo-500">
-            Login
-          </Link>
+        <p className="mt-8 text-center text-sm text-gray-500">
+          Already have an account?
+          <a
+            href="/auth/login"
+            className="font-semibold leading-6 pl-2 text-indigo-600 hover:text-indigo-500"
+          >
+            Log in
+          </a>
         </p>
       </div>
     </div>
   );
 };
 
-export default RegisterComponent;
+export default RegisterForm;
