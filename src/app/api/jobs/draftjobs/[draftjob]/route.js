@@ -2,9 +2,10 @@ import { db } from "@/lib/db"; // Import database connection
 import { getSession } from "@/lib/jobseekerauth"; // Import session retrieval function
 import { NextResponse } from "next/server"; // Import Next.js response handler
 
-export async function POST(request) {
+export async function POST(request, { params }) {
+  const id = params.draftjob; // Get draft job ID from params
   try {
-    // Retrieve session data before using it
+    // Retrieve session data
     const user = await getSession();
 
     // Log user to debug
@@ -16,20 +17,19 @@ export async function POST(request) {
 
     const formData = await request.formData();
     const title = formData.get("title");
-    const description = formData.get("description"); // Add description from form data
+    const description = formData.get("description");
     const location = formData.get("location");
-    const jobType = formData.get("jobType"); // Get job type from form data
-    const salaryMin = formData.get("salaryMin"); // Optional: Get min salary from form data
-    const salaryMax = formData.get("salaryMax"); // Optional: Get max salary from form data
-    const salaryNegotiable = formData.get("salaryNegotiable") === "true"; // Handle negotiable checkbox
-    const category = formData.get("category"); // Get job category from form data
-    const experienceLevel = formData.get("experienceLevel"); // Get experience level from form data
-    const skills = formData.getAll("skills"); // Get skills from form data (multi-select)
+    const jobType = formData.get("jobType");
+    const salaryMin = formData.get("salaryMin");
+    const salaryMax = formData.get("salaryMax");
+    const salaryNegotiable = formData.get("salaryNegotiable") === "true";
+    const category = formData.get("category");
+    const experienceLevel = formData.get("experienceLevel");
+    const skills = formData.getAll("skills");
     const applyMethod = formData.get("applyMethod");
-
+    const isfinal = formData.get("isfinal");
     const applyUrl = formData.get("applyUrl");
     const applyEmail = formData.get("applyEmail");
-
 
     // Validate inputs
     if (!title || !jobType || !employerId) {
@@ -40,7 +40,8 @@ export async function POST(request) {
     }
 
     // Create a new job entry in the database
-    const job = await db.Job.create({
+    const job = await db.DraftSavedJob.update({
+      where: { id }, // Corrected syntax here
       data: {
         title,
         description,
@@ -52,23 +53,24 @@ export async function POST(request) {
         category,
         experienceLevel,
         skills: {
-          set: skills, 
+          set: skills,
         },
-        employerId, 
+        employerId,
         applyMethod,
         applyUrl,
         applyEmail,
+        isfinal,
       },
     });
 
     return NextResponse.json(
-      { result: "New Job Created", success: true, job },
+      { result: "Job Updated Successfully", success: true, job },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error creating job:", error);
+    console.error("Error updating job:", error);
     return NextResponse.json(
-      { error: "Something went wrong while creating the job", success: false },
+      { error: "Something went wrong while updating the job", success: false },
       { status: 500 }
     );
   }

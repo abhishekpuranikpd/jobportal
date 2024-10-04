@@ -5,7 +5,7 @@ import { getSession } from "@/lib/jobseekerauth";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Employer ",
+  title: "Employer",
   description: "",
 };
 
@@ -21,20 +21,24 @@ export default async function SuperAdminLayout({ children }) {
       email: user.email,
     },
   });
+
   if (!userdata) {
     redirect("/jobseeker/login");
   }
+
   return (
     <>
       <div>
-        {" "}
         <Header name={userdata.name} id={userdata.id} email={userdata.email} />
-      </div>{" "}
-      <div className="pl-1">
-        {" "}
-        <Sidebar name={userdata.name} />
       </div>
-      <div className="ml-[10px]">{children}</div>
+      <div className="flex">
+        <div className="pl-1">
+          <Sidebar name={userdata.name} />
+        </div>
+        <div className="lg:ml-[300px] mt-8 flex-1">
+          {children}
+        </div>
+      </div>
     </>
   );
 }

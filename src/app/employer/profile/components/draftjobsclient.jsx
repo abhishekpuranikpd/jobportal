@@ -73,8 +73,40 @@ const JobPostingForm = () => {
     skill.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    try {
+      const formDataToSubmit = new FormData();
+      for (const key in formData) {
+        formDataToSubmit.append(key, formData[key]);
+      }
+
+      const res = await fetch("/api/jobs", {
+        method: "POST",
+        body: formDataToSubmit,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to post job");
+      }
+
+      const data = await res.json();
+      setSuccessMessage("Job Posting Created Successfully! Redirecting...");
+      setTimeout(() => {
+        router.push("/employer/profile");
+      }, 2000);
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const handleSaveDraft = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage("");
@@ -487,7 +519,13 @@ const JobPostingForm = () => {
             >
               Preview
             </button>
-  
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              className="flex justify-center rounded-md bg-[#243460] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1a253c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#243460]"
+            >
+              Save Draft
+            </button>
             <button
               type="button"
               onClick={handleCancel}
