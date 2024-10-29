@@ -1,20 +1,38 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation"; // Importing usePathname
+import { Menu, X, Home, Briefcase, FileText, Plus, File } from "lucide-react"; // Importing icons
+import { Pencil2Icon } from "@radix-ui/react-icons";
 
 const Sidebar = ({ name }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [ishover, setIsHover] = useState(false);
+
+  const pathname = usePathname(); // Use usePathname hook to get the current route
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
+  // Define the links with title, path, and icon
+  const links = [
+    { title: "Dashboard", path: "/employer/profile", icon: <Home size={20} /> },
+    { title: "Post New Job", path: "/employer/profile/jobs/newjob", icon: <Plus size={20} /> },
+    { title: "Job Listings", path: "/employer/profile/jobs", icon: <Briefcase size={20} /> },
+    { title: "Draft Jobs", path: "/employer/profile/draftjobs", icon: <FileText size={20} /> },
+    { title: "Applications", path: "/employer/profile/applications", icon: <File size={20} /> },
+    { title: "Edit Profile", path: "/employer/profile/edit", icon: <Pencil2Icon size={20} /> },
+
+
+
+  ];
+
   return (
     <>
       {/* Mobile Menu Button */}
       <button
-        className="md:hidden p-4 text-white shadow-2xl bg-[#243460] fixed top-0 left-0 z-20"
+        className="lg:hidden p-4 text-white shadow-2xl bg-[#243460] fixed top-0 left-0 z-20"
         onClick={toggleSidebar}
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -22,47 +40,44 @@ const Sidebar = ({ name }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 w-64 bg-white text-[#243460] min-h-screen z-10 shadow-lg transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 w-64 text-white bg-[#243460] min-h-screen  shadow-lg transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0`}
+        } lg:translate-x-0`}
       >
-        <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold hidden md:block">Hi {name}<br/><span className="text-sm text-gray-500">How are you?</span></h2>
-        </div>
-        {/* <nav className="mt-4">
-          <Link href="/dashboard">
-            <span className="block py-2 px-4 text-[#243460] hover:bg-gray-200 rounded transition duration-300">
-              Dashboard
+        <nav className="mt-4  md:ml-8">
+        <Link href="/">
+          <span
+            className="flex cursor-pointer items-center rtl:space-x-reverse"
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+          >
+            <span className="self-center text-2xl font-bold  text-white mb-4">
+              Job-Portal
             </span>
-          </Link>
-          <Link href="/jobs">
-            <span className="block py-2 px-4 text-[#243460] hover:bg-gray-200 rounded transition duration-300">
-              Job Listings
-            </span>
-          </Link>
-          <Link href="/users">
-            <span className="block py-2 px-4 text-[#243460] hover:bg-gray-200 rounded transition duration-300">
-              Users
-            </span>
-          </Link>
-          <Link href="/reports">
-            <span className="block py-2 px-4 text-[#243460] hover:bg-gray-200 rounded transition duration-300">
-              Reports
-            </span>
-          </Link>
-          <Link href="/settings">
-            <span className="block py-2 px-4 text-[#243460] hover:bg-gray-200 rounded transition duration-300">
-              Settings
-            </span>
-          </Link>
-        </nav> */}
+          </span>
+        </Link>
+          {links.map(({ title, path, icon }) => (
+            <Link key={path} href={path} onClick={() => setIsOpen(false)}>
+              <span
+                className={`flex items-center py-2 px-4 gap-2  rounded transition duration-300 ${
+                  pathname === path
+                    ? " font-bold" // Active style for current route
+                    : "text-white mb-2"
+                } mb-2`} // Add margin-bottom to create a gap
+              >
+                <span className="mr-2">{icon}</span> {/* Display icon */}
+                {title}
+              </span>
+            </Link>
+          ))}
+        </nav>
       </aside>
 
       {/* Overlay when sidebar is open on mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black opacity-50 z-0"
-          onClick={toggleSidebar}
+          className="fixed inset-0 bg-black opacity-50 z-20" // Adjust z-index to be lower than sidebar
+          onClick={toggleSidebar} // Close sidebar on overlay click
         ></div>
       )}
     </>

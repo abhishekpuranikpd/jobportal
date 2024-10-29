@@ -2,7 +2,23 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 const JobPostingForm = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,7 +45,16 @@ const JobPostingForm = () => {
     applyEmail: "",
     isRemote: false, // New field to manage remote status
   });
+  const [showPreview, setShowPreview] = useState(false);
 
+  const handleDateChange = (e) => {
+    const date = e.target.value; // Get the date string directly from the input
+    console.log(date); // Log the date value for debugging
+    setFormData((prevData) => ({
+      ...prevData,
+      applicationDeadline: date, // Update form data with the date string
+    }));
+  };
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -72,12 +97,49 @@ const JobPostingForm = () => {
   const filteredSkills = skillsList.filter((skill) =>
     skill.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage("");
     setSuccessMessage("");
+
+    // Define required fields based on formData structure
+    const requiredFields = [
+      "title",
+      "description",
+      "category",
+      "experienceLevel",
+      "applicationDeadline",
+      "applyMethod",
+      "jobType",
+      "location",
+      "salaryMin",
+      "salaryMax",
+      "skills",
+      "employmentType",
+    ];
+
+    // Additional logic to check conditional fields based on other values
+    if (!formData.isRemote) requiredFields.push("location"); // Require location if job is not remote
+    if (formData.applyMethod === "APPLY_VIA_WEBSITE")
+      requiredFields.push("applyUrl");
+    if (formData.applyMethod === "APPLY_VIA_EMAIL")
+      requiredFields.push("applyEmail");
+
+    // Filter out missing required fields
+    const missingFields = requiredFields.filter(
+      (field) => !formData[field] || formData[field].toString().trim() === ""
+    );
+
+    if (missingFields.length > 0) {
+      setErrorMessage(
+        `Please fill out the following required fields: ${missingFields.join(
+          ", "
+        )}`
+      );
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const formDataToSubmit = new FormData();
@@ -112,6 +174,44 @@ const JobPostingForm = () => {
     setErrorMessage("");
     setSuccessMessage("");
 
+    // Define required fields based on formData structure
+    const requiredFields = [
+      "title",
+      "description",
+      "category",
+      "experienceLevel",
+      "applicationDeadline",
+      "applyMethod",
+      "jobType",
+      "location",
+      "salaryMin",
+      "salaryMax",
+      "skills",
+      "employmentType",
+    ];
+
+    // Additional logic to check conditional fields based on other values
+    if (!formData.isRemote) requiredFields.push("location"); // Require location if job is not remote
+    if (formData.applyMethod === "APPLY_VIA_WEBSITE")
+      requiredFields.push("applyUrl");
+    if (formData.applyMethod === "APPLY_VIA_EMAIL")
+      requiredFields.push("applyEmail");
+
+    // Filter out missing required fields
+    const missingFields = requiredFields.filter(
+      (field) => !formData[field] || formData[field].toString().trim() === ""
+    );
+
+    if (missingFields.length > 0) {
+      setErrorMessage(
+        `Please fill out the following required fields: ${missingFields.join(
+          ", "
+        )}`
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const formDataToSubmit = new FormData();
       for (const key in formData) {
@@ -125,11 +225,11 @@ const JobPostingForm = () => {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to post job");
+        throw new Error(errorData.message || "Failed to save draft  job");
       }
 
       const data = await res.json();
-      setSuccessMessage("Job Posting Draft saved Successfully! Redirecting...");
+      setSuccessMessage("Job Draft saved Successfully! Redirecting...");
       setTimeout(() => {
         router.push("/employer/profile");
       }, 2000);
@@ -140,14 +240,9 @@ const JobPostingForm = () => {
     }
   };
 
-  const handlePreview = () => {
-    // You can implement a modal or redirect to a preview page
-    console.log("Preview Data: ", formData);
-    alert(JSON.stringify(formData, null, 2));
-  };
-
   const handleCancel = () => {
     // Reset form or redirect to the previous page
+    setShowPreview(true);
     router.push("/employer/profile"); // Redirecting to profile page
   };
 
@@ -168,7 +263,7 @@ const JobPostingForm = () => {
           noValidate
           onSubmit={handleSubmit}
         >
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="title"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -181,12 +276,13 @@ const JobPostingForm = () => {
               type="text"
               value={formData.title}
               onChange={handleChange}
+              placeholder="Enter Job title"
               required
               className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             />
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="description"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -196,6 +292,7 @@ const JobPostingForm = () => {
             <textarea
               id="description"
               name="description"
+              placeholder="Enter Job description"
               value={formData.description}
               onChange={handleChange}
               required
@@ -203,7 +300,7 @@ const JobPostingForm = () => {
             />
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="jobType"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -213,6 +310,7 @@ const JobPostingForm = () => {
             <select
               name="jobType"
               id="jobType"
+              required
               value={formData.jobType}
               onChange={handleChange}
               className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -224,7 +322,7 @@ const JobPostingForm = () => {
             </select>
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="location"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -262,7 +360,7 @@ const JobPostingForm = () => {
             </div>
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="salaryMin"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -273,6 +371,7 @@ const JobPostingForm = () => {
               id="salaryMin"
               name="salaryMin"
               type="number"
+              required
               value={formData.salaryMin}
               onChange={handleChange}
               placeholder="Enter minimum salary"
@@ -280,7 +379,7 @@ const JobPostingForm = () => {
             />
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="salaryMax"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -291,6 +390,7 @@ const JobPostingForm = () => {
               id="salaryMax"
               name="salaryMax"
               type="number"
+              required
               value={formData.salaryMax}
               onChange={handleChange}
               placeholder="Enter maximum salary"
@@ -298,12 +398,13 @@ const JobPostingForm = () => {
             />
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label htmlFor="salaryNegotiable" className="flex items-center">
               <input
                 id="salaryNegotiable"
                 name="salaryNegotiable"
                 type="checkbox"
+                required
                 checked={formData.salaryNegotiable}
                 onChange={handleChange}
                 className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-600"
@@ -314,7 +415,7 @@ const JobPostingForm = () => {
             </label>
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="category"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -326,6 +427,7 @@ const JobPostingForm = () => {
               id="category"
               value={formData.category}
               onChange={handleChange}
+              required
               className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             >
               <option value="HEALTHCARE">Healthcare</option>
@@ -337,7 +439,7 @@ const JobPostingForm = () => {
             </select>
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="experienceLevel"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -347,6 +449,7 @@ const JobPostingForm = () => {
             <select
               name="experienceLevel"
               id="experienceLevel"
+              required
               value={formData.experienceLevel}
               onChange={handleChange}
               className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -358,7 +461,7 @@ const JobPostingForm = () => {
             </select>
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="skills"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460] mb-1"
@@ -367,6 +470,7 @@ const JobPostingForm = () => {
             </label>
             <input
               type="text"
+              required
               placeholder="Search skills..."
               value={searchTerm}
               onChange={handleSearchChange}
@@ -391,7 +495,7 @@ const JobPostingForm = () => {
             </p>
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="applicationDeadline"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -403,13 +507,13 @@ const JobPostingForm = () => {
               name="applicationDeadline"
               type="date"
               value={formData.applicationDeadline}
-              onChange={handleChange}
+              onChange={handleDateChange}
               required
               className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             />
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="employmentType"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -421,6 +525,7 @@ const JobPostingForm = () => {
               id="employmentType"
               value={formData.employmentType}
               onChange={handleChange}
+              required
               className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             >
               <option value="">Select employment type</option>
@@ -430,7 +535,7 @@ const JobPostingForm = () => {
             </select>
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="benefits"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -441,6 +546,7 @@ const JobPostingForm = () => {
               id="benefits"
               name="benefits"
               type="text"
+              required
               value={formData.benefits}
               onChange={handleChange}
               placeholder="List benefits"
@@ -448,7 +554,7 @@ const JobPostingForm = () => {
             />
           </div>
 
-          <div className="col-span-1">
+          <div className="md:col-span-1 col-span-2">
             <label
               htmlFor="applyMethod"
               className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -460,6 +566,7 @@ const JobPostingForm = () => {
               id="applyMethod"
               value={formData.applyMethod}
               onChange={handleChange}
+              required
               className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             >
               <option value="APPLY_VIA_WEBSITE">Apply via Website</option>
@@ -470,7 +577,7 @@ const JobPostingForm = () => {
 
           {/* Conditionally render application URL field */}
           {formData.applyMethod === "APPLY_VIA_WEBSITE" && (
-            <div className="col-span-1">
+            <div className="md:col-span-1 col-span-2">
               <label
                 htmlFor="applyUrl"
                 className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -484,6 +591,7 @@ const JobPostingForm = () => {
                 value={formData.applyUrl}
                 onChange={handleChange}
                 placeholder="Enter website URL"
+                required
                 className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
@@ -491,7 +599,7 @@ const JobPostingForm = () => {
 
           {/* Conditionally render application email field */}
           {formData.applyMethod === "APPLY_VIA_EMAIL" && (
-            <div className="col-span-1">
+            <div className="md:col-span-1 col-span-2">
               <label
                 htmlFor="applyEmail"
                 className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
@@ -510,15 +618,182 @@ const JobPostingForm = () => {
               />
             </div>
           )}
-
+      
+            {" "}
+            {errorMessage && (
+                  <div className="container bg-white rounded-xl border ">
+              <Alert>
+                {/* <Terminal className="h-4 w-4" /> */}
+                <AlertTitle></AlertTitle>
+                <AlertDescription>
+                  <p className="text-red-500 text-center font-semibold font-sans col-span-2 ">
+                   Message :<br/> {errorMessage}
+                  </p>
+                </AlertDescription>
+              </Alert>
+              </div>
+            )}
+            {successMessage && (
+                  <div className="container bg-white rounded-xl border ">
+              <Alert>
+                {/* <Terminal className="h-4 w-4" /> */}
+                <AlertTitle></AlertTitle>
+                <AlertDescription>
+                  <p className="text-green-500 text-center font-semibold font-sans col-span-2">
+                    {successMessage}
+                  </p>
+                </AlertDescription>
+              </Alert>
+              </div>
+            )}
+      
           <div className="col-span-2 flex justify-between mt-4">
-            <button
-              type="button"
-              onClick={handlePreview}
-              className="flex justify-center rounded-md bg-[#243460] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1a253c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#243460]"
-            >
-              Preview
-            </button>
+            <Dialog className="">
+              <DialogTrigger>
+                <button
+                  type="button"
+                  className="flex justify-center rounded-md bg-[#243460] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#1a253c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#243460]"
+                >
+                  Preview
+                </button>
+              </DialogTrigger>
+              <DialogContent className="bg-white rounded-[10px]">
+                <DialogHeader>
+                  <DialogTitle>{formData.title || "Job Title"}</DialogTitle>
+                  <DialogDescription>
+                    <div className="preview-section h-[400px] overflow-auto bg-white">
+                      <Card>
+                        <CardContent>
+                          <p className="text-base break-words mb-4 mt-3">
+                            {formData.description || "No description provided."}
+                          </p>
+                          <div className="flex flex-col space-y-2">
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Experience Level
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.experienceLevel || "Not specified"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Job Type
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.jobType || "Not specified"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Location
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.location || "Not specified"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Salary Range
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.salaryMin || "Not specified"} -{" "}
+                                {formData.salaryMax || "Not specified"}{" "}
+                                {formData.salaryNegotiable
+                                  ? "(Negotiable)"
+                                  : ""}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Category
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.category || "Not specified"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Skills
+                              </span>
+                              <span className="font-normal ml-2">
+                                :{" "}
+                                {formData.skills?.length > 0
+                                  ? formData.skills.join(", ")
+                                  : "None specified"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Benefits
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.benefits || "None listed"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Application Deadline
+                              </span>
+                              <span className="font-normal ml-2">
+                                :{" "}
+                                {formData.applicationDeadline
+                                  ? new Date(
+                                      formData.applicationDeadline
+                                    ).toLocaleDateString()
+                                  : "No deadline"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Employment Type
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.employmentType || "Not specified"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Apply Method
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.applyMethod || "Not specified"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Apply URL
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.applyUrl || "Not specified"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Apply Email
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.applyEmail || "Not specified"}
+                              </span>
+                            </span>
+                            <span className="text-sm flex items-start">
+                              <span className="font-semibold md:w-40 w-16">
+                                Remote
+                              </span>
+                              <span className="font-normal ml-2">
+                                : {formData.isRemote ? "Yes" : "No"}
+                              </span>
+                            </span>
+                          </div>
+                        </CardContent>
+                        <CardFooter></CardFooter>
+                      </Card>
+                    </div>
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+
             <button
               type="button"
               onClick={handleSaveDraft}
@@ -541,16 +816,6 @@ const JobPostingForm = () => {
               {isSubmitting ? "Submitting..." : "Post Job"}
             </button>
           </div>
-          {errorMessage && (
-            <p className="text-red-500 text-center col-span-2">
-              {errorMessage}
-            </p>
-          )}
-          {successMessage && (
-            <p className="text-green-500 text-center col-span-2">
-              {successMessage}
-            </p>
-          )}
         </form>
       </div>
     </div>

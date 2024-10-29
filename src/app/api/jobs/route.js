@@ -26,9 +26,23 @@ export async function POST(request) {
     const experienceLevel = formData.get("experienceLevel"); // Get experience level from form data
     const skills = formData.getAll("skills"); // Get skills from form data (multi-select)
     const applyMethod = formData.get("applyMethod");
+    const  employmentType = formData.get("employmentType");
+
+    const applicationDeadlineRaw = formData.get("applicationDeadline");
 
     const applyUrl = formData.get("applyUrl");
     const applyEmail = formData.get("applyEmail");
+    let applicationDeadline;
+    if (typeof applicationDeadlineRaw === 'string' && applicationDeadlineRaw.trim() !== "") {
+      const parsedDate = new Date(applicationDeadlineRaw);
+      if (!isNaN(parsedDate.getTime())) {
+        applicationDeadline = parsedDate.toISOString(); // Get full ISO string
+      } else {
+        throw new Error("Invalid date format");
+      }
+    } else {
+      throw new Error("Invalid input for application Deadline: must be a non-empty string");
+    }
 
 
     // Validate inputs
@@ -51,6 +65,7 @@ export async function POST(request) {
         salaryNegotiable,
         category,
         experienceLevel,
+        applicationDeadline,
         skills: {
           set: skills, 
         },
@@ -58,6 +73,7 @@ export async function POST(request) {
         applyMethod,
         applyUrl,
         applyEmail,
+        employmentType
       },
     });
 

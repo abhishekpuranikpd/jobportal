@@ -1,88 +1,105 @@
 "use client";
 import { useState } from "react";
-
 import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
-const NavBar = () => {
+const NavBar = ({ data }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isHover, setIsHover] = useState(false);
 
   const toggleDrawer = () => {
-    setIsOpen(!isOpen); 
+    setIsOpen(!isOpen);
   };
 
+  const isEmployer = !!data?.companyName; // Check if data has employer-specific fields
+  const isJobSeeker = !!data?.fullName; // Check if data has job seeker-specific fields
+
   return (
-    <nav className="container mx-auto fixed start-0 top-0 z-20 w-full mb-10 bg-[#FFFFFF] shadow-sm">
+    <nav className="fixed start-0 top-0 z-20 w-full mb-10 bg-white shadow-sm">
       <div className="mx-auto container flex max-w-screen-xl flex-wrap items-center justify-between py-4">
         <Link href="/">
-          <span
-            className="flex cursor-pointer items-center rtl:space-x-reverse"
-            onMouseEnter={() => setIsHover(true)}
-            onMouseLeave={() => setIsHover(false)}
-          >
-            <span className="self-center text-2xl font-bold  text-[#243460]">
+          <span className="flex cursor-pointer items-center">
+            <span className="self-center text-2xl font-bold text-[#243460]">
               Job-Portal
             </span>
           </span>
         </Link>
-        <div className="hidden md:flex space-x-6 rtl:space-x-reverse md:order-2">
+        <div className="hidden md:flex space-x-6">
+          {/* Show Jobs link only for job seekers or not logged in */}
+          {(!isEmployer || !isJobSeeker) && (
+            <Link href="/jobs">
+              <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+                Jobs
+              </span>
+            </Link>
+          )}
+          {/* Show Companies link for all users */}
           <Link href="/">
-            <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-              Jobs
-            </span>
-          </Link>
-          <Link href="/">
-            <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
+            <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
               Companies
             </span>
           </Link>
-          <Link href="/jobseeker/login">
-            <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-              Login
-            </span>
-          </Link>
-          <Link href="/jobseeker/register">
-            <span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-              Register
-            </span>
-          </Link>
-          <DropdownMenu >
-            <DropdownMenuTrigger>
-              {" "}
-              <span className="cursor-pointer flex  items-center justify-center text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-                For employers <ChevronDown className="h-5 w-4 mt-1 hover:underline hover:underline-offset-8" color="#243460" />
-              </span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-        
-              <DropdownMenuSeparator />
-              <DropdownMenuItem> <Link href={"/jobseeker/login"}><span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-              Login
-            </span></Link> </DropdownMenuItem>
-              <DropdownMenuItem><Link href={"jobseeker/register"}><span className="cursor-pointer  text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-              Register
-            </span></Link>  </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
 
-       
+          {/* Employer Dropdown Menu */}
+          {!isJobSeeker && (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <span className="cursor-pointer flex items-center justify-center text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+                  For Employers{" "}
+                  <ChevronDown
+                    className="h-5 w-4 mt-1 hover:underline hover:underline-offset-8"
+                    color="#243460"
+                  />
+                </span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Link href="/employer/login">
+                    <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+                      Login
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/employer/register">
+                    <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+                      Register
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+         <div> {/* User Profile or Login button */}
+          {isJobSeeker ? ( // Assuming firstName is in the job seeker data
+            <button className="flex items-center justify-center text-[12px] font-sans font-semibold text-[#243460] w-8 h-8 bg-white border text-center border-[#243460] rounded-full focus:outline-none">
+              {data.fullName[0]} {/* Display first letter of first name */}
+            </button>
+          ) : (
+            <Link href="/jobseeker/login">
+              <button className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+                Login
+              </button>
+            </Link>
+          )}</div>
         </div>
-        <div className="flex space-x-3 rtl:space-x-reverse md:order-2 md:hidden md:space-x-0">
+
+        {/* Mobile Navigation */}
+        <div className="flex space-x-3 md:hidden">
           <button
             onClick={toggleDrawer}
             className="block p-2 focus:outline-none"
           >
             <svg
-              className="h-6 w-6 text-gray-600 dark:text-gray-300"
+              className="h-6 w-6 text-gray-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -97,6 +114,8 @@ const NavBar = () => {
             </svg>
           </button>
         </div>
+
+        {/* Mobile Drawer */}
         <div
           className={`${
             isOpen ? "left-0" : "-left-full"
@@ -124,55 +143,7 @@ const NavBar = () => {
             </button>
 
             <ol className="flex flex-col space-y-4 pt-6">
-              {/* <li>
-                <Link href="/">
-                  <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-                    Home
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/about">
-                  <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-                    About Us
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/services">
-                  <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-                    Services
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog">
-                  <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-                    Blogs
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact">
-                  <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-                    Contact Us
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/ask">
-                  <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-                    Ask a question
-                  </span>
-                </Link>
-              </li>
-              <li>
-              <Link href="/talk">
-              <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg  dark:text-[#243460]">
-              Talk to a Lawyer
-              </span>
-              </Link>
-              </li> */}
+              {/* Add mobile links here if needed */}
             </ol>
           </div>
         </div>

@@ -28,11 +28,11 @@ export default async function SuperAdminLayout({ children }) {
 
   return (
     <>
-      <div>
+      <div className="">
         <Header name={userdata.name} id={userdata.id} email={userdata.email} />
       </div>
       <div className="flex">
-        <div className="pl-1">
+        <div className="pl-1 pt-40">
           <Sidebar name={userdata.name} />
         </div>
         <div className="lg:ml-[300px] mt-8 flex-1">

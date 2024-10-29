@@ -26,6 +26,7 @@ export async function POST(request) {
     const experienceLevel = formData.get("experienceLevel"); // Get experience level from form data
     const skills = formData.getAll("skills"); // Get skills from form data (multi-select)
     const applyMethod = formData.get("applyMethod");
+    const  employmentType = formData.get("employmentType");
 
     const applyUrl = formData.get("applyUrl");
     const applyEmail = formData.get("applyEmail");
@@ -55,6 +56,7 @@ export async function POST(request) {
           set: skills, 
         },
         employerId, 
+        employmentType,
         applyMethod,
         applyUrl,
         applyEmail,

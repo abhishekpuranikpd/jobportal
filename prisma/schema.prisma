@@ -48,15 +48,50 @@ model User {
 }
 
 model Jobseeker {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  fullName      String
-  email         String        @unique
-  password      String
-  phone         String? // Optional
-  resume        String? // Store resume as a URL or a file path
-  jobPreference JobPreference
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  fullName       String
+  email          String           @unique
+  password       String
+  phone          String? // Optional
+  resume         String? // Store resume as a URL or a file path
+  profileimg     String?
+  jobPreference  JobPreference
+  skills         String[] // Array of skills (e.g., programming languages, tools)
+  education      Education[] // Relation to education history
+  workExperience WorkExperience[] // Relation to work experience
+  location       String? // Optional, to indicate the jobseeker's location
+  aboutMe        String? // Optional bio or summary about the jobseeker
+  linkedIn       String? // Optional link to LinkedIn profile
+  website        String? // Optional personal website or portfolio link
+  availability   Boolean?
+  category       JobCategory? // Optional, indicates if the jobseeker is currently available for work
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  applications   Application[] // Relation to applications
+  savedJob       SavedJob[]
+}
+
+// Define additional models for Education and WorkExperience
+model Education {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  jobseeker    Jobseeker @relation(fields: [jobseekerId], references: [id])
+  jobseekerId  String    @db.ObjectId
+  institution  String
+  degree       String
+  fieldOfStudy String
+  startDate    DateTime
+  endDate      DateTime?
+}
+
+model WorkExperience {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  jobseeker        Jobseeker @relation(fields: [jobseekerId], references: [id])
+  jobseekerId      String    @db.ObjectId
+  company          String
+  position         String
+  startDate        DateTime
+  endDate          DateTime?
+  responsibilities String[] // Array of responsibilities or achievements
 }
 
 enum JobPreference {
@@ -78,10 +113,12 @@ model Employer {
   companyLogo    String?
   emailVerified  DateTime?
   image          String?
+  aboutcompany   String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   jobs           Job[]           @relation("EmployerJobs")
   draftSavedjobs DraftSavedJob[] @relation("EmployerDraftJobs")
+  applications   Application[] // Relation to applications received
 }
 
 enum ExperienceLevel {
@@ -118,6 +155,30 @@ enum EmploymentType {
   CONTRACT
 }
 
+// New Application model
+model Application {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  jobId       String            @map("job_id") @db.ObjectId
+  jobseekerId String            @map("jobseeker_id") @db.ObjectId
+  status      ApplicationStatus @default(PENDING) // Status of the application
+  appliedAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  job        Job       @relation(fields: [jobId], references: [id])
+  jobseeker  Jobseeker @relation(fields: [jobseekerId], references: [id])
+  employer   Employer  @relation(fields: [employerId], references: [id])
+  employerId String    @db.ObjectId
+
+  @@unique([jobseekerId, jobId])
+}
+
+enum ApplicationStatus {
+  PENDING
+  SHORTLISTED
+  REJECTED
+}
+
+// Job model remains unchanged
 model Job {
   id                  String             @id @default(auto()) @map("_id") @db.ObjectId
   employerId          String             @map("employer_id") @db.ObjectId
@@ -128,6 +189,8 @@ model Job {
   salaryMin           Float?
   salaryMax           Float?
   salaryNegotiable    Boolean?           @default(false)
+  jobstatus           JobStatus?
+  jobstatuschangedby  String?
   category            JobCategory?
   experienceLevel     ExperienceLevel?
   skills              String[] // Array for multi-select skills
@@ -141,7 +204,15 @@ model Job {
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
 
-  employer Employer @relation("EmployerJobs", fields: [employerId], references: [id])
+  employer    Employer      @relation("EmployerJobs", fields: [employerId], references: [id])
+  application Application[]
+  savedJob    SavedJob[]
+}
+
+enum JobStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 model DraftSavedJob {
@@ -168,4 +239,17 @@ model DraftSavedJob {
   updatedAt           DateTime           @updatedAt
   isfinal             Boolean?           @default(false)
   employer            Employer           @relation("EmployerDraftJobs", fields: [employerId], references: [id])
+}
+
+model SavedJob {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  jobId       String   @map("job_id") @db.ObjectId
+  jobseekerId String   @map("jobseeker_id") @db.ObjectId
+  savedAt     DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  job       Job       @relation(fields: [jobId], references: [id])
+  jobseeker Jobseeker @relation(fields: [jobseekerId], references: [id])
+
+  @@unique([jobseekerId, jobId])
 }

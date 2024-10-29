@@ -10,7 +10,7 @@ import {
 import { Building2Icon } from "lucide-react";
 import Link from "next/link";
 
-const DraftJobs = ({ jobs }) => {
+const DraftJobs = ({ jobs ,employer }) => {
   return (
     <div className="mx-auto container px-2 pt-16 py-3">
       <h1 className="text-xl font-bold mb-4">Draft Saved Jobs</h1>
@@ -29,7 +29,7 @@ const DraftJobs = ({ jobs }) => {
                   {job.title || "Untitled Job"}
                 </span>
                 <p className="text-xs">
-                  {job.employer.name || "Unknown Company"}
+                  {employer.name || "Unknown Company"}
                 </p>
               </div>
               <div>

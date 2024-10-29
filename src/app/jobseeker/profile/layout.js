@@ -31,12 +31,16 @@ export default async function SuperAdminLayout({ children }) {
 
   return (
     <>
-      <Header name={userdata.name} id={userdata.id} email={userdata.email} />
-      <div className="pl-1">
-        <Sidebar name={userdata.name} />
+     <div className="">
+        <Header name={userdata.fullName} id={userdata.id} email={userdata.email} />
       </div>
-      <div className="ml-[10px]">
-        {children}
+      <div className="flex">
+        <div className="pl-1 pt-40">
+          <Sidebar name={userdata.name} />
+        </div>
+        <div className="lg:ml-[300px] mt-16 flex-1">
+          {children}
+        </div>
       </div>
     </>
   );

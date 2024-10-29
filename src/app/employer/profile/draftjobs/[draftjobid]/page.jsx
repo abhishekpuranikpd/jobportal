@@ -1,6 +1,7 @@
 import React from 'react';
 import DraftUpdate from '../../components/draftjobsclient';
 import { db } from '@/lib/db';
+import JobPostingForm from '../../components/draftjobsclient';
 
 const DraftSinglePage = async ({ params }) => {
   const id = params.draftjobid;
@@ -11,7 +12,7 @@ const DraftSinglePage = async ({ params }) => {
 
   return (
     <div className="mt-10">
-      {data ? <DraftUpdate data={data} /> : <p>Job not found</p>}
+     <JobPostingForm fetchdata={data} /> 
     </div>
   );
 };

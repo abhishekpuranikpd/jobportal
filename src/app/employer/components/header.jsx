@@ -37,8 +37,8 @@ const Header = ({ id, name, email }) => {
   };
 
   return (
-    <nav className="container mx-auto fixed start-0 top-0 w-full mb-10 shadow-sm">
-      <header className="bg-white text-white shadow-md p-4 flex justify-end">
+    <nav className="fixed start-0 top-0  w-full mb-10">
+      <header className="bg-[#243460] text-white  p-4 flex justify-end">
         {/* User Icon with Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -57,19 +57,19 @@ const Header = ({ id, name, email }) => {
             <p className="text-gray-700 mb-2">{email}</p>
             <hr className="h-2"/>
 
-            <DropdownMenuItem asChild>
+            {/* <DropdownMenuItem asChild>
               <Link href="/profile" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
-                <User className="mr-2 text-blue-500" /> {/* Colored icon */}
+                <User className="mr-2 text-blue-500" />
                 <span>Profile</span>
               </Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild>
               <Link href="#" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
-                <Settings className="mr-2 text-blue-500" /> {/* Colored icon */}
+                <Settings className="mr-2 text-blue-500" />
                 <span>Settings</span>
               </Link>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
 
             <DropdownMenuItem asChild>
               <div className="flex justify-end items-center">
