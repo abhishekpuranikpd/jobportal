@@ -1,5 +1,11 @@
 "use client";
-import { Building2Icon, Clock, IndianRupeeIcon, MapPin } from "lucide-react";
+import {
+  Building2Icon,
+  Clock,
+  FilterIcon,
+  IndianRupeeIcon,
+  MapPin,
+} from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 import {
@@ -55,6 +61,8 @@ const SortOptions = {
 };
 
 const Mainjobclient = ({ jobs, user }) => {
+  const [visibleJobs, setVisibleJobs] = useState(20);
+
   const [search, setSearch] = useState({
     jobType: "",
     location: "",
@@ -73,7 +81,8 @@ const Mainjobclient = ({ jobs, user }) => {
   const [isApplied, setIsApplied] = useState(false);
   const [issaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [showFilters, setShowFilters] = useState(false);
+  
   const handleSearchChange = (e) => {
     const { name, value } = e.target;
     setSearch((prev) => ({ ...prev, [name]: value }));
@@ -235,14 +244,14 @@ const Mainjobclient = ({ jobs, user }) => {
     <>
       <div className="flex justify-center mt-20 container mx-auto">
         <div className="w-11/12 md:w-3/4 lg:w-2/3">
-          <div className="flex flex-col md:flex-row items-center p-3 bg-white rounded-2xl shadow-blue-100 shadow-xl md:space-y-0 space-y-2 md:rounded-full">
+          <div className="flex flex-col md:flex-row items-center p-3 rounded-2xl shadow-blue-100 shadow-xl md:space-y-0 space-y-2 md:rounded-full bg-transparent">
             <input
               type="text"
               name="jobType"
               placeholder="Job Title"
               value={search.jobType}
               onChange={handleSearchChange}
-              className="flex-1 border-b md:border-b-0 md:border-r text-base outline-none py-2 px-3 leading-8 mb-2 md:mb-0"
+              className="flex-1 border-b md:border-b-0 md:border-r text-base outline-none py-2 px-3 leading-8 mb-2 md:mb-0 bg-transparent"
             />
             <input
               type="text"
@@ -250,7 +259,7 @@ const Mainjobclient = ({ jobs, user }) => {
               placeholder="Location"
               value={search.location}
               onChange={handleSearchChange}
-              className="flex-1 text-base outline-none py-2 px-3 leading-8"
+              className="flex-1 text-base outline-none py-2 px-3 leading-8 bg-transparent"
             />
             <input
               type="text"
@@ -258,7 +267,7 @@ const Mainjobclient = ({ jobs, user }) => {
               placeholder="Company Name"
               value={search.employerName}
               onChange={handleSearchChange}
-              className="flex-1 text-base outline-none py-2 px-3 leading-8"
+              className="flex-1 text-base outline-none py-2 px-3 leading-8 bg-transparent"
             />
           </div>
         </div>
@@ -266,8 +275,23 @@ const Mainjobclient = ({ jobs, user }) => {
 
       <div className="container md:space-x-4 max-w-7xl mx-auto p-4 flex flex-col md:flex-row">
         {/* Sidebar for additional filters (visible on larger screens) */}
-        <div className="hidden md:block w-1/4 p-4 mt-4 bg-gray-100 rounded-lg shadow-md">
+        <div
+          className={`lg:block w-full lg:w-1/4 p-4 mt-4 bg-gray-100 rounded-lg shadow-md ${
+            showFilters ? "block" : "hidden"
+          }`}
+        >
           <h2 className="text-lg font-bold mb-2">Filters</h2>
+
+          {/* Close button for mobile filters */}
+          <div className="justify-end flex lg:hidden">
+            {" "}
+            <button
+              onClick={() => setShowFilters(false)}
+              className="mb-4  bg-blue-500 rounded-full  text-white py-1 px-3 border   hover:text-red-700"
+            >
+              Close
+            </button>
+          </div>
 
           {/* Experience Level Filter */}
           <label className="block mb-2">Experience Level</label>
@@ -362,81 +386,103 @@ const Mainjobclient = ({ jobs, user }) => {
           </select>
         </div>
 
-        {/* Job Listings */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-x-3 gap-y-4 h-[500px] overflow-auto">
-          {sortedJobs.map((job) => (
-            <Card
-              key={job.id}
-              className="border shadow-sm text-black rounded-[15px] p-4 my-2 mx-2 md:my-4 md:mx-4"
-              // Set min/max height
-            >
-              <CardHeader>
-                <div className="flex items-center">
-                  <Building2Icon className="mr-2" />
-                  <div>
-                    <Link href={`/jobs/${job.id}`}>
-                      <CardTitle className="text-[14px] md:text-xl font-bold hover:text-blue-500">
-                        {job.title || "Untitled Job"}
-                      </CardTitle>
-                    </Link>
-                    <p className="text-xs">
-                      {job.employer.name || "Unknown Company"}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="flex flex-wrap items-center font-bold gap-2">
-                <p className="text-xs border-2 px-2 py-1 rounded-full flex items-center">
-                  <MapPin className="text-[#243460] mr-1" size={16} />
-                  {job.location || "Location not available"}
-                </p>
-                <p className="text-xs border-2 px-2 py-1 rounded-full flex items-center">
-                  <Clock className="text-[#243460] mr-1" size={16} />
-                  {job.employmentType || "Full Time"}
-                </p>
-                <p className="text-xs border-2 px-2 py-1 rounded-full flex items-center">
-                  <IndianRupeeIcon className="text-[#243460] mr-1" size={16} />
-                  {job.salaryMin?.toLocaleString()} -{" "}
-                  {job.salaryMax?.toLocaleString()} / year
-                </p>
-              </CardContent>
+        {/* Button to show/hide filters on mobile */}
+        <div className="lg:hidden flex justify-end">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center justify-center w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-200"
+          >
+            <FilterIcon />
+          </button>
+        </div>
 
-              <CardFooter>
-                {" "}
-                <div className=" flex justify-center space-x-2 text-sm">
-                  <button
-                    onClick={() => {
-                      if (!user) {
-                        alert("Please log in to apply for this job.");
-                        router.push("/jobseeker/login");
-                      } else {
-                        handleApply(job);
-                      }
-                    }}
-                    className="bg-[#243460] text-white py-1 px-4 rounded-full shadow hover:bg-blue-600 transition duration-200"
-                  >
-                    {loading ? "Please Wait " : " Apply Now"}
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (!user) {
-                        alert("Please log in to save  this job.");
-                        router.push("/jobseeker/login");
-                      } else {
-                        handleSaveJob(job);
-                      }
-                    }}
-                    className="bg-[#243460] text-white py-2 px-6 rounded-full shadow hover:bg-blue-600 transition duration-200"
-                  >
-                    {loading ? "Please Wait" : "Save Job"}
-                  </button>
+        {/* Job Listings */}
+        <div className="relative h-[800px] overflow-auto p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            {sortedJobs.slice(0, visibleJobs).map((job) => (
+              <Card
+                key={job.id}
+                className="border shadow-sm text-black rounded-[15px] h-80 p-4"
+              >
+                <CardHeader>
+                  <div className="flex items-center">
+                    <Building2Icon className="mr-2" />
+                    <div>
+                      <Link href={`/jobs/${job.id}`}>
+                        <CardTitle className="text-[14px] md:text-xl font-bold hover:text-blue-500">
+                          {job.title || "Untitled Job"}
+                        </CardTitle>
+                      </Link>
+                      <p className="text-xs">
+                        {job.employer.name || "Unknown Company"}
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex flex-wrap items-center font-bold gap-2">
+                  <p className="text-xs border px-2 py-1 rounded-full flex items-center">
+                    <MapPin className="text-[#243460] mr-1" size={16} />
+                    {job.location || "Location not available"}
+                  </p>
+                  <p className="text-xs border px-2 py-1 rounded-full flex items-center">
+                    <Clock className="text-[#243460] mr-1" size={16} />
+                    {job.employmentType || "Full Time"}
+                  </p>
+                  <p className="text-xs border px-2 py-1 rounded-full flex items-center">
+                    <IndianRupeeIcon
+                      className="text-[#243460] mr-1"
+                      size={16}
+                    />
+                    {job.salaryMin?.toLocaleString()} -{" "}
+                    {job.salaryMax?.toLocaleString()} / year
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <div className="flex justify-center space-x-2 text-sm">
+                    <button
+                      onClick={() => {
+                        if (!user) {
+                          alert("Please log in to apply for this job.");
+                          router.push("/jobseeker/login");
+                        } else {
+                          handleApply(job);
+                        }
+                      }}
+                      className="bg-[#243460] text-white py-1 px-4 rounded-full shadow hover:bg-blue-600 transition duration-200"
+                    >
+                      {loading ? "Please Wait" : "Apply Now"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!user) {
+                          alert("Please log in to save this job.");
+                          router.push("/jobseeker/login");
+                        } else {
+                          handleSaveJob(job);
+                        }
+                      }}
+                      className="bg-[#243460] text-white py-2 px-6 rounded-full shadow hover:bg-blue-600 transition duration-200"
+                    >
+                      {loading ? "Please Wait" : "Save Job"}
+                    </button>
+                  </div>
+                </CardFooter>
+                <div className="w-full flex justify-start text-xs mt-2">
+                  <p>Posted {timeAgo(new Date(job.createdAt))}</p>
                 </div>
-              </CardFooter>
-              <div className="w-full flex justify-start text-xs">
-                <p className="">Posted {timeAgo(new Date(job.createdAt))} </p>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ))}
+          </div>
+          {visibleJobs < sortedJobs.length && (
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={() => setVisibleJobs((prev) => prev + 20)}
+                className="w-full max-w-xs bg-[#243460] text-white py-3 px-6 rounded-lg shadow-lg hover:bg-blue-600 transition duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Load More
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

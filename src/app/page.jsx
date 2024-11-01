@@ -5,6 +5,9 @@ import NavBar from "./components/header";
 import Footer from "./components/footer";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/jobseekerauth";
+import AboutUs from "./(site)/components/aboutus";
+import MBanner from "./employer/components/mainslider";
+import Testimonials from "./(site)/components/reviews";
 
 export default async function Home() {
   const jobPosts = await db.Job.findMany({
@@ -43,6 +46,9 @@ export default async function Home() {
     <div className="container">
       <NavBar data={data} />
       <JobSearchBar jobPosts={jobPosts} />
+      <AboutUs/>
+      <MBanner/>
+      <Testimonials/>
       <Footer />
     </div>
   );

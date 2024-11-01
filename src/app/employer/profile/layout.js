@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Employer",
-  description: "",
+  description: "Peperk.in",
 };
 
 export default async function SuperAdminLayout({ children }) {

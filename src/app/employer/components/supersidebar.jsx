@@ -52,7 +52,7 @@ const Sidebar = ({ name }) => {
             onMouseLeave={() => setIsHover(false)}
           >
             <span className="self-center text-2xl font-bold  text-white mb-4">
-              Job-Portal
+            Peperk.in
             </span>
           </span>
         </Link>

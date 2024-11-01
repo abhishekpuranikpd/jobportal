@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata = {
-  title: "JOB - PORTAL",
-  description: "JOB - PORTAL",
+  title: "Peperk.in",
+  description: "Peperk.in",
 };
 
 export default function RootLayout({ children }) {

@@ -1,19 +1,29 @@
-import { db } from '@/lib/db';
-import React from 'react'
+import React from 'react';
+import { db } from '../../../lib/db';
 
-const Employerpage = async ({params}) => {
-   const companyid = params.employer
-   const data = await db.Employer.findFirst({
-    where: {
-      id: companyid,
-     },
+const Employerpage = async ({ params }) => {
+  // Confirm params and employer are being passed
+  if (!params || !params.employer) {
+    return <div>Error: Employer ID is missing.</div>;
+  }
+
+  const companyid = params.employer;
+
+  const data = await db.Employer.findFirst({
+    where: { id: companyid },
   });
 
-  return (
- <>
- <h1 className='pt-40'>{data.name}</h1>
- </>
-  )
-}
+  if (!data) {
+    return <div>Employer not found.</div>;
+  }
 
-export default Employerpage
+  return (
+    <div>
+      <h1>Employer: {data.name}</h1>
+      <p>Email: {data.email}</p>
+      {/* Render additional employer details */}
+    </div>
+  );
+};
+
+export default Employerpage;

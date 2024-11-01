@@ -8,7 +8,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
-import { User, Briefcase } from "lucide-react"; // Importing additional icons
 
 const AuthNavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,18 +17,16 @@ const AuthNavBar = () => {
   };
 
   return (
-    <nav className="container mx-auto fixed start-0 top-0 z-20 w-full mb-10 bg-[#FFFFFF] shadow-sm">
+    <nav className="container mx-auto px-4 md:px-16 fixed start-0 top-0 z-20 w-full mb-10 bg-[#FFFFFF] shadow-sm">
       <div className="mx-auto container flex max-w-screen-xl flex-wrap items-center justify-between py-4">
         <Link href="/">
           <span className="flex cursor-pointer items-center rtl:space-x-reverse">
             <span className="self-center text-2xl font-bold text-[#243460]">
-              Job-Portal
+            Peperk.in
             </span>
           </span>
         </Link>
         <div className="hidden md:flex space-x-6 rtl:space-x-reverse md:order-2">
-     
-      
           <DropdownMenu>
             <DropdownMenuTrigger>
               <span className="cursor-pointer flex items-center justify-center text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
@@ -40,7 +37,6 @@ const AuthNavBar = () => {
               <DropdownMenuItem>
                 <Link href="/employer/login">
                   <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
-   
                     Login
                   </span>
                 </Link>
@@ -48,7 +44,6 @@ const AuthNavBar = () => {
               <DropdownMenuItem>
                 <Link href="/employer/register">
                   <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
- 
                     Register
                   </span>
                 </Link>
@@ -65,7 +60,6 @@ const AuthNavBar = () => {
               <DropdownMenuItem>
                 <Link href="/jobseeker/login">
                   <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
-      
                     Login
                   </span>
                 </Link>
@@ -73,7 +67,6 @@ const AuthNavBar = () => {
               <DropdownMenuItem>
                 <Link href="/jobseeker/register">
                   <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
-         
                     Register
                   </span>
                 </Link>
@@ -102,9 +95,9 @@ const AuthNavBar = () => {
         <div
           className={`${
             isOpen ? "left-0" : "-left-full"
-          } fixed top-0 h-full transition-all duration-300 w-[60%] ease-in-out md:hidden`}
+          } fixed top-0 h-full transition-all duration-300 w-[60%] ease-in-out md:hidden bg-white shadow-lg`}
         >
-          <div className="p-4 bg-white h-full w-full relative">
+          <div className="p-4 h-full relative">
             <button
               onClick={toggleDrawer}
               className="absolute top-4 right-4 p-2 focus:outline-none"
@@ -124,26 +117,28 @@ const AuthNavBar = () => {
                 />
               </svg>
             </button>
-
-            <ol className="flex flex-col space-y-4 pt-6">
-              <li>
-                <Link href="/jobseeker/login">
-                  <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
-                    <User className="inline-block mr-1" color="#243460" />
-                    Login
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/jobseeker/register">
-                  <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
-                    <User className="inline-block mr-1" color="#243460" />
-                    Register
-                  </span>
-                </Link>
-              </li>
-              {/* Add more links as necessary */}
-            </ol>
+            <div className="flex flex-col space-y-4 mt-8">
+              <Link href="/employer/login">
+                <span className="block text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+                  Employer Login
+                </span>
+              </Link>
+              <Link href="/employer/register">
+                <span className="block text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+                  Employer Register
+                </span>
+              </Link>
+              <Link href="/jobseeker/login">
+                <span className="block text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+                  Job Seeker Login
+                </span>
+              </Link>
+              <Link href="/jobseeker/register">
+                <span className="block text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+                  Job Seeker Register
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

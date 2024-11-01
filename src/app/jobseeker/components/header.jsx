@@ -37,7 +37,7 @@ const Header = ({ id, name, email }) => {
   };
 
   return (
-    <nav className="fixed start-0 top-0 z-50 w-full mb-10">
+    <nav className="fixed  start-0 top-0 z-50 w-full mb-10">
       <header className="bg-[#243460] text-white  p-4 flex justify-end">
         {/* User Icon with Dropdown */}
         <DropdownMenu>

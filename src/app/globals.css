@@ -167,3 +167,6 @@ html {
 .clip-bucket {
   clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
 }
+.table-row:hover {
+  background-color: #f5f7fa;
+}

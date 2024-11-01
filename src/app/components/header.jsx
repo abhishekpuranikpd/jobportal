@@ -21,15 +21,16 @@ const NavBar = ({ data }) => {
   const isJobSeeker = !!data?.fullName; // Check if data has job seeker-specific fields
 
   return (
-    <nav className="fixed start-0 top-0 z-20 w-full mb-10 bg-white shadow-sm">
-      <div className="mx-auto container flex max-w-screen-xl flex-wrap items-center justify-between py-4">
+    <nav className="fixed container mx-auto px-4 md:px-16 top-0 z-20 w-full mb-10 bg-white shadow-sm">
+      <div className="container mx-auto flex flex-wrap items-center justify-between py-4 ">
         <Link href="/">
           <span className="flex cursor-pointer items-center">
             <span className="self-center text-2xl font-bold text-[#243460]">
-              Job-Portal
+            Peperk.in
             </span>
           </span>
         </Link>
+
         <div className="hidden md:flex space-x-6">
           {/* Show Jobs link only for job seekers or not logged in */}
           {(!isEmployer || !isJobSeeker) && (
@@ -39,12 +40,12 @@ const NavBar = ({ data }) => {
               </span>
             </Link>
           )}
-          {/* Show Companies link for all users */}
+          {/* Show Companies link for all users
           <Link href="/">
             <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
               Companies
             </span>
-          </Link>
+          </Link> */}
 
           {/* Employer Dropdown Menu */}
           {!isJobSeeker && (
@@ -78,22 +79,23 @@ const NavBar = ({ data }) => {
             </DropdownMenu>
           )}
 
-         <div> {/* User Profile or Login button */}
-          {isJobSeeker ? ( // Assuming firstName is in the job seeker data
-            <button className="flex items-center justify-center text-[12px] font-sans font-semibold text-[#243460] w-8 h-8 bg-white border text-center border-[#243460] rounded-full focus:outline-none">
-              {data.fullName[0]} {/* Display first letter of first name */}
-            </button>
-          ) : (
-            <Link href="/jobseeker/login">
-              <button className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
-                Login
+          <div> {/* User Profile or Login button */}
+            {isJobSeeker ? (
+              <button className="flex items-center justify-center text-[12px] font-sans font-semibold text-[#243460] w-8 h-8 bg-white border text-center border-[#243460] rounded-full focus:outline-none">
+                {data.fullName[0]} {/* Display first letter of first name */}
               </button>
-            </Link>
-          )}</div>
+            ) : (
+              <Link href="/jobseeker/login">
+                <button className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+                  Login
+                </button>
+              </Link>
+            )}
+          </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <div className="flex space-x-3 md:hidden">
+        {/* Mobile Navigation Button */}
+        <div className="flex md:hidden">
           <button
             onClick={toggleDrawer}
             className="block p-2 focus:outline-none"
@@ -119,9 +121,9 @@ const NavBar = ({ data }) => {
         <div
           className={`${
             isOpen ? "left-0" : "-left-full"
-          } fixed top-0 h-full transition-all duration-300 w-[60%] ease-in-out md:hidden`}
+          } fixed top-0 h-full transition-all duration-300 w-[60%] ease-in-out md:hidden bg-white shadow-lg`}
         >
-          <div className="p-4 bg-white h-full w-full relative">
+          <div className="p-4 h-full relative">
             <button
               onClick={toggleDrawer}
               className="absolute top-4 right-4 p-2 focus:outline-none"
@@ -143,7 +145,31 @@ const NavBar = ({ data }) => {
             </button>
 
             <ol className="flex flex-col space-y-4 pt-6">
-              {/* Add mobile links here if needed */}
+              {/* Mobile Navigation Links */}
+              {(!isEmployer || !isJobSeeker) && (
+                <li>
+                  <Link href="/jobs">
+                    <span className="block text-[#243460] hover:underline hover:underline-offset-8">Jobs</span>
+                  </Link>
+                </li>
+              )}
+              <li>
+                <Link href="/">
+                  <span className="block text-[#243460] hover:underline hover:underline-offset-8">Companies</span>
+                </Link>
+              </li>
+              {!isJobSeeker && (
+                <li>
+                  <Link href="/employer/login">
+                    <span className="block text-[#243460] hover:underline hover:underline-offset-8">Employer Login</span>
+                  </Link>
+                </li>
+              )}
+              <li>
+                <Link href="/jobseeker/login">
+                  <span className="block text-[#243460] hover:underline hover:underline-offset-8">Job Seeker Login</span>
+                </Link>
+              </li>
             </ol>
           </div>
         </div>

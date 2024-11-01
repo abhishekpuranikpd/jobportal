@@ -39,7 +39,7 @@ const Login = () => {
 <div className="flex min-h-screen flex-col justify-center items-center  px-6 lg:px-8">
   <div className="sm:mx-auto sm:w-full sm:max-w-sm">
     <h2 className="text-center text-2xl font-bold tracking-tight text-[#243460]">
-      Log in to your account
+      Log in to your Job Seeker account
     </h2>
   </div>
 
@@ -115,7 +115,7 @@ const Login = () => {
     <p className="mt-10 text-center text-sm text-gray-500">
       Not having an account?
       <a
-        href="/auth/register"
+        href="/jobseeker/register"
         className="font-semibold leading-6 pl-4 text-indigo-600 hover:text-indigo-500"
       >
         Register

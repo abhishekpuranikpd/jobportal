@@ -55,7 +55,7 @@ const JobSearchBar = ({ jobPosts }) => {
 
   return (
     <>
-      <section className="text-[#243460]  min-h-screen body-font">
+      <section className="text-[#243460] min-h-screen items-center justify-center flex  body-font">
         <div className="container mx-auto mt-20 px-5">
           <div className="text-center">
             <h1 className="text-[30px] md:text-[40px] text-[#5271FF] font-extrabold mb-4">

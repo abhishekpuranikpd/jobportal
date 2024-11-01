@@ -1,20 +1,45 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, X, Home, LucideGitGraph, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 
-const Sidebar = ({name}) => {
+const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const pathname = usePathname();
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const links = [
+    { title: "Dashboard", path: "/profile", icon: <Home size={20} /> },
+    {
+      title: "Jobs Data",
+      path: "/profile/jobsdata",
+      icon: <LucideGitGraph size={20} />,
+    },
+    {
+      title: "Logout",
+      path: "#", // Placeholder for logout
+      icon: <LogOut size={20} />,
+    },
+  ];
+
+  const handleSignOut = async () => {
+    setLoading(true);
+    await signOut();
+    setLoading(false);
   };
 
   return (
     <>
       {/* Mobile Menu Button */}
       <button
-        className="md:hidden p-4 text-white shadow-2xl  bg-[#243460] fixed top-0 left-0 z-20"
+        aria-label="Toggle Sidebar"
+        className="lg:hidden block  p-4 text-white shadow-2xl bg-[#243460] fixed top-0 left-0 z-50"
         onClick={toggleSidebar}
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -22,47 +47,48 @@ const Sidebar = ({name}) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 w-64 pl-4 shadow-md  bg-white text-[#243460] min-h-screen z-10 transform ${
+        aria-hidden={!isOpen}
+        className={`fixed top-0 left-0 w-64 text-white bg-[#243460] z-50 min-h-screen shadow-lg transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 md:translate-x-0`}
+        } lg:translate-x-0`}
       >
-        <div className="p-4">
-          <h2 className="text-xl font-semibold hidden md:block">Hi {name}<br/><span className="text-sm">How are You?</span></h2>
-        </div>
-        <nav className="mt-4">
-          <Link href="/dashboard">
-            <span className="block py-2 px-4 text-[#243460] hover:bg-gray-50 rounded">
-              Dashboard
+        <nav className="mt-4 md:ml-8">
+          <Link href="/">
+            <span className="flex cursor-pointer items-center rtl:space-x-reverse">
+              <span className="self-center text-2xl font-bold text-white mb-4">
+              Peperk.in
+              </span>
             </span>
           </Link>
-          <Link href="/jobs">
-            <span className="block py-2 px-4 text-[#243460] hover:bg-gray-50 rounded">
-              Job Listings
-            </span>
-          </Link>
-          <Link href="/users">
-            <span className="block py-2 px-4 text-[#243460] hover:bg-gray-50 rounded">
-              Users
-            </span>
-          </Link>
-          <Link href="/reports">
-            <span className="block py-2 px-4 text-[#243460] hover:bg-gray-50 rounded">
-              Reports
-            </span>
-          </Link>
-          <Link href="/settings">
-            <span className="block py-2 px-4 text-[#243460] hover:bg-gray-50 rounded">
-              Settings
-            </span>
-          </Link>
+          {links.map(({ title, path, icon }) => (
+            <Link
+              key={title}
+              href={path}
+              onClick={title === "Logout" ? handleSignOut : () => setIsOpen(false)}
+            >
+              <span
+                className={`flex items-center py-2 px-4 gap-2 rounded transition duration-300 ${
+                  pathname === path
+                    ? "font-bold bg-blue-500" // Highlight active link
+                    : "text-white mb-2"
+                } mb-2`}
+              >
+                {icon && <span className="mr-2">{icon}</span>}
+                {title}
+                {loading && title === "Logout" && (
+                  <span className="ml-auto">Loading...</span> // Loading indicator
+                )}
+              </span>
+            </Link>
+          ))}
         </nav>
       </aside>
 
       {/* Overlay when sidebar is open on mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black opacity-50 z-0"
-          onClick={toggleSidebar}
+          className="fixed inset-0 bg-black opacity-50 z-10" // Lower z-index than sidebar
+          onClick={toggleSidebar} // Close sidebar on overlay click
         ></div>
       )}
     </>
