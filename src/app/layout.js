@@ -1,6 +1,9 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
+import NavBar from "./components/header";
+import { db } from "@/lib/db";
+import { getSession } from "@/lib/jobseekerauth";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,13 +21,41 @@ export const metadata = {
   description: "Peperk.in",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const session = await getSession();
+  const sessionmail = session?.email;
+  let data = null;
+
+  if (sessionmail) {
+    // Check if the logged-in user is a Jobseeker
+    const jobseekerData = await db.Jobseeker.findFirst({
+      where: { email: sessionmail },
+    });
+
+    if (jobseekerData) {
+      data = {
+        ...jobseekerData,
+      };
+    } else {
+      // If no Jobseeker found, check if the user is an Employer
+      const employerData = await db.Employer.findUnique({
+        where: { email: sessionmail },
+      });
+
+      if (employerData) {
+        data = {
+          ...employerData,
+        };
+      }
+    }
+  }
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#FAF9F6]`}
       >
-        <div className="">  <NextTopLoader />{children}</div>
+        <div className="">  <NextTopLoader />    
+       {children}</div>
       </body>
     </html>
   );

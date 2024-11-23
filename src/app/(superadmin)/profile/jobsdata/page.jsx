@@ -46,8 +46,14 @@ const page = async() => {
       };
     }),
   }));
+
+
+
+
   return (
-    <div><EmployerJobTable employerJobsWithCounts={employerJobsWithCounts}/></div>
+    <div> 
+ 
+       <EmployerJobTable employerJobsWithCounts={employerJobsWithCounts}/></div>
   )
 }
 

@@ -15,7 +15,10 @@ const ProfilePage = async () => {
 
   const userdata = await db.Jobseeker.findFirst({
     where: { email: user.email },
+    include : {resumes :true}
   });
+
+
 
   return (
     <>

@@ -28,6 +28,7 @@ const Header = ({ id, name, email }) => {
       if (response.ok) {
         // Redirect to the login page after successful logout
         router.push("/");
+        router.refresh("")
       }
     } catch (error) {
       console.error("Logout failed", error);

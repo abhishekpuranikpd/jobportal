@@ -7,41 +7,38 @@ import MetricsChart from "../components/MetricCharts";
 const ProfilePage = async () => {
   const user = await getCurrentUser();
 
-  // Fetch user data and metrics in a single query if possible
   const userData = await db.user.findUnique({
     where: { id: user.id },
     select: {
       id: true,
       name: true,
       email: true,
-      // Include other fields if necessary
+      role: true,
+      permissions: true,
     },
   });
 
-  // Set today's date start for filtering today's records
+  const { role, permissions } = userData;
+
   const todayStart = new Date(new Date().setHours(0, 0, 0, 0));
 
-  // Fetch metrics for Superadmin view
   const metrics = await db.$transaction([
-    db.job.count(), // Total jobs
-    db.job.count({
-      where: { createdAt: { gte: todayStart } }, // Today's jobs
-    }),
+    db.job.count(),
+    db.job.count({ where: { createdAt: { gte: todayStart } } }),
     db.job.count({ where: { jobstatus: "APPROVED" } }),
     db.job.count({ where: { jobstatus: "REJECTED" } }),
-    db.application.count(), // Total applications
+    db.application.count(),
     db.application.count({ where: { status: "REJECTED" } }),
     db.application.count({ where: { status: "SHORTLISTED" } }),
     db.application.count({ where: { appliedAt: { gte: todayStart } } }),
     db.job.count({
-      where: { jobstatus: "APPROVED", createdAt: { gte: todayStart } }, // Today's approved jobs
+      where: { jobstatus: "APPROVED", createdAt: { gte: todayStart } },
     }),
     db.job.count({
-      where: { jobstatus: "REJECTED", createdAt: { gte: todayStart } }, // Today's rejected jobs
+      where: { jobstatus: "REJECTED", createdAt: { gte: todayStart } },
     }),
   ]);
 
-  // Destructure metrics for better readability
   const [
     totalJobs,
     todayJobs,
@@ -68,45 +65,87 @@ const ProfilePage = async () => {
     todayRejectedJobs,
   };
 
-  return (
-    <>
-      {/* Main Content */}
-      <div className="grid grid-cols-1 p-6 lg:mt-12 md:p-8">
-        <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard Overview</h1>
+  const filterMetricsBasedOnPermissions = () => {
+    const filteredMetrics = {};
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {/* Metrics Display */}
-            {[ 
-              { label: "Total Jobs", value: totalJobs, color: "bg-blue-200" },
-              { label: "Today's Jobs", value: todayJobs, color: "bg-green-200" },
-              { label: "Approved Jobs", value: approvedJobs, color: "bg-yellow-200" },
-              { label: "Rejected Jobs", value: rejectedJobs, color: "bg-red-200" },
-              { label: "Total Applications", value: totalApplications, color: "bg-indigo-200" },
-              { label: "Rejected Applications", value: rejectedApplications, color: "bg-pink-200" },
-              { label: "Shortlisted Applications", value: shortlistedApplications, color: "bg-orange-200" },
-              { label: "Today's Applications", value: todayApplications, color: "bg-teal-200" },
-              { label: "Today's Approved Jobs", value: todayApprovedJobs, color: "bg-purple-200" },
-              { label: "Today's Rejected Jobs", value: todayRejectedJobs, color: "bg-gray-300" },
-            ].map(({ label, value, color }) => (
+    if (role === "SUPERADMIN") {
+      return metricsData;
+    }
+
+    if (permissions.includes(Permission.MANAGE_JOB)) {
+      filteredMetrics.totalJobs = totalJobs;
+      filteredMetrics.todayJobs = todayJobs;
+      filteredMetrics.approvedJobs = approvedJobs;
+      filteredMetrics.rejectedJobs = rejectedJobs;
+    }
+
+    if (permissions.includes(Permission.MANAGE_JOBSEEKER)) {
+      filteredMetrics.totalApplications = totalApplications;
+      filteredMetrics.rejectedApplications = rejectedApplications;
+      filteredMetrics.shortlistedApplications = shortlistedApplications;
+      filteredMetrics.todayApplications = todayApplications;
+    }
+
+    if (permissions.includes(Permission.VIEW_ANALYTICS)) {
+      filteredMetrics.todayApprovedJobs = todayApprovedJobs;
+      filteredMetrics.todayRejectedJobs = todayRejectedJobs;
+    }
+
+    return filteredMetrics;
+  };
+
+  const filteredMetrics = filterMetricsBasedOnPermissions();
+
+  return (
+    <div className="grid grid-cols-1 p-6 lg:mt-12 md:p-8">
+      <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard Overview</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {Object.entries(filteredMetrics).map(([label, value]) => {
+            const colorMap = {
+              totalJobs: "bg-blue-200",
+              todayJobs: "bg-green-200",
+              approvedJobs: "bg-yellow-200",
+              rejectedJobs: "bg-red-200",
+              totalApplications: "bg-indigo-200",
+              rejectedApplications: "bg-pink-200",
+              shortlistedApplications: "bg-orange-200",
+              todayApplications: "bg-teal-200",
+              todayApprovedJobs: "bg-purple-200",
+              todayRejectedJobs: "bg-gray-300",
+            };
+
+            return (
               <div
                 key={label}
-                className={`${color} p-5 rounded-lg shadow-md transition-transform transform hover:scale-105`}
+                className={`${colorMap[label]} p-5 rounded-lg shadow-md transition-transform transform hover:scale-105`}
               >
-                <h2 className="text-lg font-semibold text-gray-800">{label}</h2>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  {label.replace(/_/g, " ")}
+                </h2>
                 <p className="text-2xl font-bold text-gray-900">{value}</p>
               </div>
-            ))}
-          </div>
-
-          {/* Add the chart here */}
-          <div className="mt-8 md:w-full flex justify-center w-[300px] overflow-x-auto items-center ">
-            <MetricsChart metrics={metricsData}  />
-          </div>
+            );
+          })}
+        </div>
+        <div className="mt-8 md:w-full flex justify-center w-[300px] overflow-x-auto items-center">
+          <MetricsChart metrics={filteredMetrics} /> 
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
 export default ProfilePage;
+
+
+const Permission = {
+  MANAGE_EMPLOYER: "MANAGE_EMPLOYER",
+  MANAGE_JOB: "MANAGE_JOB",
+  MANAGE_JOBSEEKER: "MANAGE_JOBSEEKER",
+  MANAGE_ADMIN: "MANAGE_ADMIN",
+  VIEW_EMPLOYER: "VIEW_EMPLOYER",
+  VIEW_JOB: "VIEW_JOB",
+  VIEW_JOBSEEKER: "VIEW_JOBSEEKER",
+  VIEW_ANALYTICS: "VIEW_ANALYTICS",
+};

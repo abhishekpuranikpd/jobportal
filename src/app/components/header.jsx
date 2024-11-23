@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const NavBar = ({ data }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +18,7 @@ const NavBar = ({ data }) => {
     setIsOpen(!isOpen);
   };
 
-  const isEmployer = !!data?.companyName; // Check if data has employer-specific fields
+  const isEmployer = !!data?.name; // Check if data has employer-specific fields
   const isJobSeeker = !!data?.fullName; // Check if data has job seeker-specific fields
 
   return (
@@ -26,7 +27,7 @@ const NavBar = ({ data }) => {
         <Link href="/">
           <span className="flex cursor-pointer items-center">
             <span className="self-center text-2xl font-bold text-[#243460]">
-            Peperk.in
+              Peperk.in
             </span>
           </span>
         </Link>
@@ -40,15 +41,23 @@ const NavBar = ({ data }) => {
               </span>
             </Link>
           )}
-          {/* Show Companies link for all users
-          <Link href="/">
-            <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
-              Companies
-            </span>
-          </Link> */}
+             {(isEmployer) && (
+            <Link href="/employer/profile">
+              <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+               Dashboard
+              </span>
+            </Link>
+          )}
+             {(isJobSeeker) && (
+            <Link href="/jobseeker/profile">
+              <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
+               Dashboard
+              </span>
+            </Link>
+          )}
 
           {/* Employer Dropdown Menu */}
-          {!isJobSeeker && (
+          {!isJobSeeker && !isEmployer && (
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <span className="cursor-pointer flex items-center justify-center text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
@@ -79,11 +88,22 @@ const NavBar = ({ data }) => {
             </DropdownMenu>
           )}
 
-          <div> {/* User Profile or Login button */}
+          {/* User Profile or Login button */}
+          <div className="flex items-center justify-center text-center gap-2">
             {isJobSeeker ? (
-              <button className="flex items-center justify-center text-[12px] font-sans font-semibold text-[#243460] w-8 h-8 bg-white border text-center border-[#243460] rounded-full focus:outline-none">
-                {data.fullName[0]} {/* Display first letter of first name */}
-              </button>
+              <>
+                <button className="flex items-center justify-center text-[12px] font-sans font-semibold text-[#243460] w-8 h-8 bg-white border text-center border-[#243460] rounded-full focus:outline-none">
+                  {data.fullName[0]} {/* Display first letter of full name */}
+                </button>
+              
+              </>
+            ) : isEmployer ? (
+              <>
+                <button className="flex items-center justify-center text-[12px] font-sans font-semibold text-[#243460] w-8 h-8 bg-white border text-center border-[#243460] rounded-full focus:outline-none">
+                  {data.name[0]} {/* Display first letter of company name */}
+                </button>
+             
+              </>
             ) : (
               <Link href="/jobseeker/login">
                 <button className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
@@ -170,6 +190,21 @@ const NavBar = ({ data }) => {
                   <span className="block text-[#243460] hover:underline hover:underline-offset-8">Job Seeker Login</span>
                 </Link>
               </li>
+              {/* Mobile Dashboard Links */}
+              {isJobSeeker && (
+                <li>
+                  <Link href="/jobseeker/dashboard">
+                    <span className="block text-[#243460] hover:underline hover:underline-offset-8">Job Seeker Dashboard</span>
+                  </Link>
+                </li>
+              )}
+              {isEmployer && (
+                <li>
+                  <Link href="/employer/dashboard">
+                    <span className="block text-[#243460] hover:underline hover:underline-offset-8">Employer Dashboard</span>
+                  </Link>
+                </li>
+              )}
             </ol>
           </div>
         </div>

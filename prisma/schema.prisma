@@ -35,41 +35,68 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
-  email         String?   @unique
+  email         String      @unique
   emailVerified DateTime?
   image         String?
   password      String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          UserRole    @default(ADMIN) // Default role is Admin (can be assigned as SUPERADMIN during registration)
+  permissions   Permission[] 
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   accounts      Account[]
   sessions      Session[]
 }
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+}
+enum Permission {
+  MANAGE_EMPLOYER
+  MANAGE_JOB
+  MANAGE_JOBSEEKER
+  MANAGE_ADMIN
+  VIEW_EMPLOYER
+  VIEW_JOB
+  VIEW_JOBSEEKER
+  VIEW_ANALYTICS
+}
+
 
 model Jobseeker {
   id             String           @id @default(auto()) @map("_id") @db.ObjectId
   fullName       String
   email          String           @unique
   password       String
-  phone          String? // Optional
-  resume         String? // Store resume as a URL or a file path
+  phone          String? 
   profileimg     String?
   jobPreference  JobPreference
-  skills         String[] // Array of skills (e.g., programming languages, tools)
-  education      Education[] // Relation to education history
-  workExperience WorkExperience[] // Relation to work experience
-  location       String? // Optional, to indicate the jobseeker's location
-  aboutMe        String? // Optional bio or summary about the jobseeker
-  linkedIn       String? // Optional link to LinkedIn profile
-  website        String? // Optional personal website or portfolio link
+  skills         String[] 
+  education      Education[] 
+  workExperience WorkExperience[] 
+  location       String? 
+  aboutMe        String? 
+  linkedIn       String? 
+  website        String? 
   availability   Boolean?
-  category       JobCategory? // Optional, indicates if the jobseeker is currently available for work
+  category       JobCategory? 
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
-  applications   Application[] // Relation to applications
+  applications   Application[] 
   savedJob       SavedJob[]
+  resumes        Resume[]         // New relation to the Resume model
 }
+
+model Resume {
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  url            String           // URL or path to the resume file
+  title          String?          // Optional title or description for each resume
+  createdAt      DateTime         @default(now())
+  jobseekerId    String @db.ObjectId
+  jobseeker      Jobseeker        @relation(fields: [jobseekerId], references: [id], onDelete: Cascade)
+}
+
 
 // Define additional models for Education and WorkExperience
 model Education {
@@ -118,8 +145,14 @@ model Employer {
   updatedAt      DateTime        @updatedAt
   jobs           Job[]           @relation("EmployerJobs")
   draftSavedjobs DraftSavedJob[] @relation("EmployerDraftJobs")
-  applications   Application[] // Relation to applications received
+  applications   Application[]   // Relation to applications received
+
+  // Approval fields
+  approvalStatus ApprovalStatus  @default(PENDING)
+  approvedBy     String?         @db.ObjectId // SUPERADMIN who approved/rejected
+  approvalRemarks String?        // Optional remarks for approval/rejection
 }
+
 
 enum ExperienceLevel {
   ENTRY_LEVEL
@@ -204,10 +237,22 @@ model Job {
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
 
+  // Approval fields
+  approvalStatus      ApprovalStatus     @default(PENDING)
+  approvedBy          String?            @db.ObjectId // SUPERADMIN who approved/rejected
+  approvalRemarks     String?            // Optional remarks for approval/rejection
+
   employer    Employer      @relation("EmployerJobs", fields: [employerId], references: [id])
   application Application[]
   savedJob    SavedJob[]
 }
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 
 enum JobStatus {
   PENDING

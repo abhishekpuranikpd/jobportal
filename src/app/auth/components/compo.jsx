@@ -2,24 +2,49 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
+// Updated Permission Enum
+const Permission = {
+  MANAGE_EMPLOYER: "MANAGE_EMPLOYER",
+  MANAGE_JOB: "MANAGE_JOB",
+  MANAGE_JOBSEEKER: "MANAGE_JOBSEEKER",
+  MANAGE_ADMIN: "MANAGE_ADMIN",
+  VIEW_EMPLOYER: "VIEW_EMPLOYER",
+  VIEW_JOB: "VIEW_JOB",
+  VIEW_JOBSEEKER: "VIEW_JOBSEEKER",
+  VIEW_ANALYTICS: "VIEW_ANALYTICS",
+};
+
 const RegisterComponent = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("ADMIN"); // Default role
+  const [permissions, setPermissions] = useState([]); // Default empty permissions
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handlePermissionChange = (e) => {
+    const { value, checked } = e.target;
+    setPermissions((prevPermissions) => {
+      if (checked) {
+        return [...prevPermissions, value];
+      } else {
+        return prevPermissions.filter((permission) => permission !== value);
+      }
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // Disable the button while submitting
+    setIsSubmitting(true);
 
     try {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json", // Important for JSON body
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, role, permissions }),
       });
 
       if (!res.ok) {
@@ -28,29 +53,27 @@ const RegisterComponent = () => {
 
       const data = await res.json();
       alert("Account Created");
-      router.push("/auth/login");
+      router.push("/profile");
     } catch (error) {
       alert("Something Went Wrong");
     } finally {
-      setIsSubmitting(false); // Re-enable the button after submission
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col mt-20 px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="text-center text-2xl font-bold tracking-tight text-[#243460]">
-          Create your account
+    <div className="flex flex-col justify-center sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full md:max-w-4xl p-2 rounded-xl">
+        <h2 className="text-center text-2xl font-semibold text-[#243460] mb-6">
+          Create Admin Account
         </h2>
-      </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-2" noValidate onSubmit={handleSubmit}>
+        <form className="space-y-6" noValidate onSubmit={handleSubmit}>
           {/* Name Input */}
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
+              className="block text-sm font-medium text-[#243460]"
             >
               Name
             </label>
@@ -63,7 +86,7 @@ const RegisterComponent = () => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your name"
                 required
-                className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-full rounded-xl border-2 border-gray-300 py-2 px-4 text-[#243460] shadow-sm focus:ring-2 focus:ring-indigo-600 focus:outline-none"
               />
             </div>
           </div>
@@ -72,9 +95,9 @@ const RegisterComponent = () => {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
+              className="block text-sm font-medium text-[#243460]"
             >
-              Email address
+              Email Address
             </label>
             <div className="mt-2">
               <input
@@ -85,7 +108,7 @@ const RegisterComponent = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
-                className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-full rounded-xl border-2 border-gray-300 py-2 px-4 text-[#243460] shadow-sm focus:ring-2 focus:ring-indigo-600 focus:outline-none"
               />
             </div>
           </div>
@@ -94,7 +117,7 @@ const RegisterComponent = () => {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium leading-6 pl-4 text-[#243460]"
+              className="block text-sm font-medium text-[#243460]"
             >
               Password
             </label>
@@ -107,8 +130,55 @@ const RegisterComponent = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="*****"
                 required
-                className="block w-full rounded-xl border-0 pl-2 py-1.5 text-[#243460] shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-full rounded-xl border-2 border-gray-300 py-2 px-4 text-[#243460] shadow-sm focus:ring-2 focus:ring-indigo-600 focus:outline-none"
               />
+            </div>
+          </div>
+
+          {/* Role Selection */}
+          <div>
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-[#243460]"
+            >
+              Role
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="block w-full rounded-xl border-2 border-gray-300 py-2 px-4 text-[#243460] shadow-sm focus:ring-2 focus:ring-indigo-600 focus:outline-none"
+            >
+              <option value="ADMIN">Admin</option>
+              <option value="SUPERADMIN">Super Admin</option>
+            </select>
+          </div>
+
+          {/* Permission Selection */}
+          <div>
+            <label className="block text-sm font-medium text-[#243460]">
+              Permissions
+            </label>
+            <div className="mt-2 space-y-2">
+              {Object.keys(Permission).map((permissionKey) => (
+                <div key={permissionKey} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={permissionKey}
+                    value={Permission[permissionKey]}
+                    onChange={handlePermissionChange}
+                    checked={permissions.includes(Permission[permissionKey])}
+                    className="mr-2"
+                  />
+                  <label
+                    htmlFor={permissionKey}
+                    className="text-sm text-[#243460]"
+                  >
+                    {Permission[permissionKey].replace(/_/g, " ")}
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -117,24 +187,12 @@ const RegisterComponent = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`flex w-full mt-10 justify-center rounded-xl bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
-                isSubmitting ? "cursor-not-allowed bg-gray-400" : ""
-              }`}
+              className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
             >
-              {isSubmitting ? "Creating Account..." : "Create Account"}
+              {isSubmitting ? "Creating..." : "Create Account"}
             </button>
           </div>
         </form>
-
-        <p className="mt-10 text-center text-sm text-gray-500">
-          Already have an account?
-          <a
-            href="/auth/login"
-            className="font-semibold leading-6 pl-4 text-indigo-600 hover:text-indigo-500"
-          >
-            Login
-          </a>
-        </p>
       </div>
     </div>
   );

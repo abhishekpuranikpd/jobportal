@@ -1,5 +1,6 @@
 import React from 'react';
 import { db } from '../../../lib/db';
+import EmployerView from '../components/employerview';
 
 const Employerpage = async ({ params }) => {
   // Confirm params and employer are being passed
@@ -10,7 +11,9 @@ const Employerpage = async ({ params }) => {
   const companyid = params.employer;
 
   const data = await db.Employer.findFirst({
-    where: { id: companyid },
+    where: { id: companyid }, include: {
+      jobs: true,
+    },
   });
 
   if (!data) {
@@ -19,9 +22,7 @@ const Employerpage = async ({ params }) => {
 
   return (
     <div>
-      <h1>Employer: {data.name}</h1>
-      <p>Email: {data.email}</p>
-      {/* Render additional employer details */}
+     <EmployerView data={data}/>
     </div>
   );
 };

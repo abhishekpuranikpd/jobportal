@@ -1,5 +1,6 @@
 "use client";
 import { UploadButton } from "@uploadthing/react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const RegisterForm = () => {
@@ -18,7 +19,7 @@ const RegisterForm = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
-
+const router = useRouter()
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -83,6 +84,7 @@ const RegisterForm = () => {
         setErrorMessage(data.error || "Registration failed");
       } else {
         setSuccessMessage("Registration successful! Please log in.");
+        router.push("/jobseeker/login")
         setFormData({
           fullName: "",
           email: "",
@@ -245,6 +247,8 @@ const RegisterForm = () => {
               onChange={handleChange}
               className="block w-full rounded-2xl border border-gray-300 p-2 text-[#243460] shadow-sm focus:ring-2 focus:ring-indigo-600"
             >
+              <option value="">Select</option>
+
               <option value="HEALTHCARE">Healthcare</option>
               <option value="IT">IT</option>
               <option value="MARKETING">Marketing</option>

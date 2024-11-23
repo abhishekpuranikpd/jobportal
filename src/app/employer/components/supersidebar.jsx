@@ -21,7 +21,6 @@ const Sidebar = ({ name }) => {
     { title: "Post New Job", path: "/employer/profile/jobs/newjob", icon: <Plus size={20} /> },
     { title: "Job Listings", path: "/employer/profile/jobs", icon: <Briefcase size={20} /> },
     { title: "Draft Jobs", path: "/employer/profile/draftjobs", icon: <FileText size={20} /> },
-    { title: "Applications", path: "/employer/profile/applications", icon: <File size={20} /> },
     { title: "Edit Profile", path: "/employer/profile/edit", icon: <Pencil2Icon size={20} /> },
 
 

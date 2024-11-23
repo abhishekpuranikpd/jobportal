@@ -33,12 +33,21 @@ const MainJob = async () => {
       }
     }
   }
-//for jobs
+
+  // Fetch the jobseeker's details to check the category
   const user = await db.Jobseeker.findFirst({
-    where :{email:session?.email}
-  })
+    where: { email: session?.email },
+  });
 
   let jobs = [];
+
+  // Log the jobseeker and category if available
+  if (user) {
+    console.log("Jobseeker:", user); // Log jobseeker data
+    console.log("Category:", user.category); // Log jobseeker category
+  } else {
+    console.log("No jobseeker found for the email:", session?.email);
+  }
 
   // If no session found, fetch all jobs
   if (!session) {
@@ -69,8 +78,11 @@ const MainJob = async () => {
       });
     } else if (!jobseeker || !jobseeker.category) {
       // If jobseeker not found or category is not set
+      console.log("Jobseeker is either not found or category is not set");
       return <div>No jobseeker found or category not set.</div>;
     } else {
+      console.log("Fetching jobs for category:", jobseeker.category); // Log the category used to fetch jobs
+
       // Fetch jobs that match the jobseeker's category
       jobs = await db.Job.findMany({
         where: {
@@ -82,6 +94,9 @@ const MainJob = async () => {
       });
     }
   }
+
+  // Log the fetched jobs
+  console.log("Fetched Jobs:", jobs); // Log the jobs
 
   // Check if jobs were found and render accordingly
   if (!jobs || jobs.length === 0) {

@@ -47,10 +47,10 @@ export const PUT = async (req, params) => {
         const aboutMe = formData.get('aboutMe'); 
         if (aboutMe) updateData.aboutMe = aboutMe;
         const linkedIn = formData.get('linkedIn'); 
-        if (linkedIn) updateData.aboutMe = linkedIn;
+        if (linkedIn) updateData.linkedIn = linkedIn;
 
         const website = formData.get('website');  
-        if (website) updateData.aboutMe = website;
+        if (website) updateData.website = website;
         const category = formData.get('category');
         if (phone) updateData.category = category;
         const profileimg = formData.get('logo');

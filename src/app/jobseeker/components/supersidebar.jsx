@@ -53,8 +53,13 @@ const Sidebar = ({ name }) => {
       icon: <PlusCircle size={20} />,
     },
     {
-      title: "Resume",
+      title: "Resumes",
       path: "/jobseeker/profile/resume",
+      icon: <BookCheckIcon size={20} />,
+    },
+    {
+      title: "Resume builder",
+      path: "/jobseeker/profile/resumebuilder",
       icon: <BookCheckIcon size={20} />,
     },
 

@@ -15,7 +15,7 @@ export const POST = async (req) => {
     const location = formData.get("location");
     const category = formData.get("category");
     const jobPreference = formData.get("jobPreference");
-    const resumeUrl = formData.get("resumeUrl"); // Get the uploaded file
+    const resumeFile = formData.get("resumeUrl"); // Get the uploaded resume file
 
     // Check if required fields are present
     if (!fullName || !email || !password) {
@@ -39,9 +39,7 @@ export const POST = async (req) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Handle file (resume) upload
-
-    // Create a new jobseeker entry
+    // Create a new jobseeker entry without resume initially
     const user = await db.jobseeker.create({
       data: {
         fullName,
@@ -51,9 +49,20 @@ export const POST = async (req) => {
         jobPreference,
         category,
         location,
-        resume: resumeUrl,
       },
     });
+
+    // Handle resume file upload and store in the Resume model
+    if (resumeFile) {
+
+      await db.resume.create({
+        data: {
+          url: resumeFile,
+          title: `${fullName}'s Resume`, // Optional title for the resume
+          jobseekerId: user.id,          // Link resume to the created jobseeker
+        },
+      });
+    }
 
     return NextResponse.json({ success: true, user }, { status: 200 });
   } catch (error) {
