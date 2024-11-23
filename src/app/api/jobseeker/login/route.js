@@ -4,11 +4,12 @@ import { NextResponse } from "next/server";
 import { encrypt } from "@/lib/jobseekerauth";
 
 export async function POST(request, params) {
+  const baseurl = process.env.NEXT_PUBLIC_BASE_URL
   try {
     const { email, password } = await request.json();
 
     const resp = await fetch(
-      `http://localhost:3000/api/jobseeker/auth/?apikey=479693736527271&email=${email}&password=${password}`
+      `${baseurl}/api/jobseeker/auth/?apikey=479693736527271&email=${email}&password=${password}`
     );
 
     if (!resp.ok) {
