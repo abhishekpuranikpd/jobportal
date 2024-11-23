@@ -27,7 +27,13 @@ const NavBar = ({ data }) => {
         <Link href="/">
           <span className="flex cursor-pointer items-center">
             <span className="self-center text-2xl font-bold text-[#243460]">
+<<<<<<< HEAD
               Peperk.in
+=======
+            Peperk.in
+            </span> <span className="self-center text-sm font-bold text-[#243460]">
+            (Beta)
+>>>>>>> 7f1dee89733a024b2911d438c0d6c238d529dd54
             </span>
           </span>
         </Link>
