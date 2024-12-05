@@ -1,0 +1,214 @@
+import { jsPDF } from "jspdf";
+import { google } from "@ai-sdk/google";
+import { generateText } from "ai";
+
+// Function to handle POST requests
+export async function POST(req) {
+  try {
+    // Parse JSON data from the request body (client data)
+    const formData = await req.json();
+
+    // Generate AI-enhanced resume data
+    const generatedData = await generateGeminiEnhancedResume(formData);
+
+    // Create the PDF with the generated data
+    const doc = new jsPDF();
+
+    // Set basic font style
+    doc.setFont("Helvetica");
+
+    // Add Resume Title
+    doc.setFontSize(22);
+    doc.text("Resume", 14, 20);
+
+    // Personal Information Section
+    const { fullName, email, phone, aboutMe } = generatedData;
+    doc.setFontSize(14);
+    doc.text(`Full Name: ${fullName || "N/A"}`, 14, 30);
+    doc.text(`Email: ${email || "N/A"}`, 14, 35);
+    doc.text(`Phone: ${phone || "N/A"}`, 14, 40);
+    doc.text(`About Me: ${aboutMe || "N/A"}`, 14, 45);
+
+    // Education Section
+    doc.setFontSize(16);
+    doc.text("Education", 14, 55);
+    (generatedData.education || []).forEach((edu, index) => {
+      const y = 60 + index * 15;
+      doc.setFontSize(12);
+      doc.text(`Institution: ${edu.institution || "N/A"}`, 14, y);
+      doc.text(`Degree: ${edu.degree || "N/A"}`, 14, y + 5);
+      doc.text(`Field of Study: ${edu.fieldOfStudy || "N/A"}`, 14, y + 10);
+      doc.text(`Year: ${edu.year || "N/A"}`, 14, y + 15);
+      doc.text(`Percentage: ${edu.percentage || "N/A"}%`, 14, y + 20);
+    });
+
+    // Work Experience Section
+    if ((generatedData.workExperience || []).length > 0) {
+      doc.setFontSize(16);
+      doc.text("Work Experience", 14, 90);
+      (generatedData.workExperience || []).forEach((exp, index) => {
+        const y = 95 + index * 20;
+        doc.setFontSize(12);
+        doc.text(`Company: ${exp.company || "N/A"}`, 14, y);
+        doc.text(`Position: ${exp.position || "N/A"}`, 14, y + 5);
+        doc.text(`Duration: ${exp.duration || "N/A"}`, 14, y + 10);
+        doc.text(`Responsibilities: ${exp.responsibilities || "N/A"}`, 14, y + 15);
+      });
+    }
+
+    // Skills Section
+    if (generatedData.skills && generatedData.skills !== "N/A") {
+      doc.setFontSize(16);
+      doc.text("Skills", 14, 140);
+      doc.setFontSize(12);
+      doc.text(generatedData.skills || "N/A", 14, 145);
+    }
+
+    // Hobbies Section
+    if (generatedData.hobbies && generatedData.hobbies !== "N/A") {
+      doc.setFontSize(16);
+      doc.text("Hobbies", 14, 175);
+      doc.setFontSize(12);
+      doc.text(generatedData.hobbies || "N/A", 14, 180);
+    }
+
+    // Certifications Section
+    if ((generatedData.certifications || []).length > 0) {
+      doc.setFontSize(16);
+      doc.text("Certifications", 14, 190);
+      (generatedData.certifications || []).forEach((cert, index) => {
+        const y = 195 + index * 15;
+        doc.setFontSize(12);
+        doc.text(`Name: ${cert.name || "N/A"}`, 14, y);
+        doc.text(`Organization: ${cert.organization || "N/A"}`, 14, y + 5);
+        doc.text(`Year: ${cert.year || "N/A"}`, 14, y + 10);
+      });
+    }
+
+    // Address Section
+    const address = generatedData.address || {};
+    doc.setFontSize(16);
+    doc.text("Address", 14, 215);
+    doc.setFontSize(12);
+    doc.text(`${address.street || "N/A"}`, 14, 220);
+    doc.text(`${address.city || "N/A"}, ${address.state || "N/A"} ${address.zip || "N/A"}`, 14, 225);
+
+    // Generate the PDF as a Blob
+    const pdfBlob = doc.output("blob");
+
+    // Return the PDF as a response
+    return new Response(pdfBlob, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "attachment; filename=resume.pdf",
+      },
+    });
+  } catch (error) {
+    console.error("Error generating resume:", error);
+
+    // Return an error response
+    return new Response(
+      JSON.stringify({ message: "Internal Server Error", error: error.message }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
+}
+
+// Function to clean unwanted characters like backticks, newlines, etc.
+function cleanResponse(response) {
+  // Remove potential non-JSON characters, leading/trailing spaces, or BOM characters
+  return response.replace(/^\uFEFF|\s+|`/g, "").trim();
+}
+
+// Function to generate AI-enhanced resume data using Gemini
+async function generateGeminiEnhancedResume(formData) {
+  const prompt = `Enhance the following resume details. Improve phrasing, add a professional tone, and summarize effectively. Add relevant sections like hobbies and responsibilities based on skills and work experience. Return only the following JSON object, and ensure it is valid. Do not include any additional text or comments.
+  {
+    "fullName": "<Enhanced Full Name>",
+    "email": "<Enhanced Email>",
+    "phone": "<Enhanced Phone>",
+    "aboutMe": "<Enhanced About Me>",
+    "education": [{"institution": "<Name>", "degree": "<Degree>", "fieldOfStudy": "<Field>", "year": "<Year>", "percentage": "<Percentage>"}],
+    "workExperience": [{"company": "<Company>", "position": "<Position>", "duration": "<Duration>", "responsibilities": "<Responsibilities>"}],
+    "skills": "<Comma-separated list of skills>",
+    "hobbies": "<Comma-separated list of hobbies>",
+    "certifications": [{"name": "<Certification Name>", "organization": "<Organization>", "year": "<Year>"}],
+    "address": {"street": "<Street>", "city": "<City>", "state": "<State>", "zip": "<Zip Code>"}
+  }
+  Input:
+  ${JSON.stringify(formData)}
+  `;
+
+  try {
+    const { text } = await generateText({
+      model: google("gemini-1.5-pro-latest"),
+      prompt,
+    });
+
+    // Log the raw AI response for debugging
+    console.log("Raw AI Response:", text);
+
+    const cleanedText = cleanResponse(text);
+
+    // Log the cleaned AI response before parsing
+    console.log("Cleaned AI Response:", cleanedText);
+
+    // Check and remove 'json' prefix if it exists
+    let cleanedJsonText = cleanedText;
+    if (cleanedText.startsWith('json')) {
+      cleanedJsonText = cleanedText.slice(4).trim(); // Remove 'json' prefix
+    }
+
+    // Check if the cleaned response is valid JSON
+    let parsedResponse = null;
+    if (isJson(cleanedJsonText)) {
+      try {
+        parsedResponse = JSON.parse(cleanedJsonText);
+      } catch (e) {
+        console.error("Error parsing JSON:", e);
+      }
+    } else {
+      console.error("Response is not valid JSON:", cleanedJsonText);
+    }
+
+    // Detailed logging to understand what fields are missing
+    if (parsedResponse) {
+      console.log("Parsed AI Response:", parsedResponse);
+    }
+
+    // Validate fields in parsed response
+    if (
+      parsedResponse &&
+      parsedResponse.fullName &&
+      parsedResponse.email &&
+      parsedResponse.education &&
+      parsedResponse.workExperience
+    ) {
+      console.log("Valid AI JSON response detected.");
+      return parsedResponse;
+    } else {
+      console.warn("Missing expected fields in AI response:", parsedResponse);
+      return formData;  // Fallback to original data if missing fields
+    }
+  } catch (error) {
+    console.error("Error during AI resume generation:", error);
+    return formData;  // Fallback to original data on error
+  }
+}
+
+// Function to clean unwanted characters like backticks, newlines, etc.
+
+// Function to check if a string is valid JSON
+function isJson(str) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}

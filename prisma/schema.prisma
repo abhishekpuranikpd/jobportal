@@ -35,23 +35,25 @@ model Session {
 }
 
 model User {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
-  email         String      @unique
+  email         String       @unique
   emailVerified DateTime?
   image         String?
   password      String
-  role          UserRole    @default(ADMIN) // Default role is Admin (can be assigned as SUPERADMIN during registration)
-  permissions   Permission[] 
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  role          UserRole     @default(ADMIN) // Default role is Admin (can be assigned as SUPERADMIN during registration)
+  permissions   Permission[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   accounts      Account[]
   sessions      Session[]
 }
+
 enum UserRole {
   SUPERADMIN
   ADMIN
 }
+
 enum Permission {
   MANAGE_EMPLOYER
   MANAGE_JOB
@@ -63,40 +65,62 @@ enum Permission {
   VIEW_ANALYTICS
 }
 
-
 model Jobseeker {
-  id             String           @id @default(auto()) @map("_id") @db.ObjectId
-  fullName       String
-  email          String           @unique
-  password       String
-  phone          String? 
-  profileimg     String?
-  jobPreference  JobPreference
-  skills         String[] 
-  education      Education[] 
-  workExperience WorkExperience[] 
-  location       String? 
-  aboutMe        String? 
-  linkedIn       String? 
-  website        String? 
-  availability   Boolean?
-  category       JobCategory? 
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  applications   Application[] 
-  savedJob       SavedJob[]
-  resumes        Resume[]         // New relation to the Resume model
+  id                    String                  @id @default(auto()) @map("_id") @db.ObjectId
+  fullName              String
+  email                 String                  @unique
+  password              String
+  phone                 String?
+  profileimg            String?
+  jobPreference         JobPreference
+  skills                String[]
+  education             Education[]
+  workExperience        WorkExperience[]
+  location              String?
+  aboutMe               String?
+  linkedIn              String?
+  website               String?
+  availability          Boolean?
+  category              JobCategory?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  applications          Application[]
+  savedJob              SavedJob[]
+  resumes               Resume[] // New relation to the Resume model
+  AIResumeGeneratedData AIResumeGeneratedData[] // Relation to the AIResumeGeneratedData model
+  Skill                 Skill[]
+  Industry              Industry[]
+}
+
+model AIResumeGeneratedData {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  fullName       String?
+  email          String?
+  phone          String?
+  aboutMe        String?
+  skills         String?
+  hobbies        String?
+  certifications Json? // Change this line
+  addressStreet  String?
+  addressCity    String?
+  addressState   String?
+  addressZip     String?
+  education      String?
+  workExperience String?
+  jobseekerId    String
+  jobseeker      Jobseeker @relation(fields: [jobseekerId], references: [id]) // Correct relation field
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model Resume {
-  id             String           @id @default(auto()) @map("_id") @db.ObjectId
-  url            String           // URL or path to the resume file
-  title          String?          // Optional title or description for each resume
-  createdAt      DateTime         @default(now())
-  jobseekerId    String @db.ObjectId
-  jobseeker      Jobseeker        @relation(fields: [jobseekerId], references: [id], onDelete: Cascade)
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  url         String // URL or path to the resume file
+  title       String? // Optional title or description for each resume
+  createdAt   DateTime  @default(now())
+  jobseekerId String    @db.ObjectId
+  jobseeker   Jobseeker @relation(fields: [jobseekerId], references: [id], onDelete: Cascade)
 }
-
 
 // Define additional models for Education and WorkExperience
 model Education {
@@ -128,6 +152,32 @@ enum JobPreference {
   CONTRACT
 }
 
+model Industry {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title       String?
+  jobs        Job?       @relation(fields: [jobId], references: [id])
+  jobseekers  Jobseeker? @relation(fields: [jobseekerId], references: [id])
+  employers   Employer?  @relation(fields: [employerId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  jobId       String?    @db.ObjectId
+  jobseekerId String?    @db.ObjectId
+  employerId  String?    @db.ObjectId
+}
+
+model Skill {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title       String?
+  jobs        Job?       @relation(fields: [jobId], references: [id])
+  jobseekers  Jobseeker? @relation(fields: [jobseekerId], references: [id])
+  employers   Employer?  @relation(fields: [employerId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  jobId       String?    @db.ObjectId
+  jobseekerId String?    @db.ObjectId
+  employerId  String?    @db.ObjectId
+}
+
 model Employer {
   id             String          @id @default(auto()) @map("_id") @db.ObjectId
   name           String
@@ -145,14 +195,15 @@ model Employer {
   updatedAt      DateTime        @updatedAt
   jobs           Job[]           @relation("EmployerJobs")
   draftSavedjobs DraftSavedJob[] @relation("EmployerDraftJobs")
-  applications   Application[]   // Relation to applications received
+  applications   Application[] // Relation to applications received
 
   // Approval fields
-  approvalStatus ApprovalStatus  @default(PENDING)
-  approvedBy     String?         @db.ObjectId // SUPERADMIN who approved/rejected
-  approvalRemarks String?        // Optional remarks for approval/rejection
+  approvalStatus  ApprovalStatus @default(PENDING)
+  approvedBy      String?        @db.ObjectId // SUPERADMIN who approved/rejected
+  approvalRemarks String? // Optional remarks for approval/rejection
+  Skill           Skill[]
+  Industry        Industry[]
 }
-
 
 enum ExperienceLevel {
   ENTRY_LEVEL
@@ -238,13 +289,15 @@ model Job {
   updatedAt           DateTime           @updatedAt
 
   // Approval fields
-  approvalStatus      ApprovalStatus     @default(PENDING)
-  approvedBy          String?            @db.ObjectId // SUPERADMIN who approved/rejected
-  approvalRemarks     String?            // Optional remarks for approval/rejection
+  approvalStatus  ApprovalStatus @default(PENDING)
+  approvedBy      String?        @db.ObjectId // SUPERADMIN who approved/rejected
+  approvalRemarks String? // Optional remarks for approval/rejection
 
   employer    Employer      @relation("EmployerJobs", fields: [employerId], references: [id])
   application Application[]
   savedJob    SavedJob[]
+  Skill       Skill[]
+  Industry    Industry[]
 }
 
 enum ApprovalStatus {
@@ -252,7 +305,6 @@ enum ApprovalStatus {
   APPROVED
   REJECTED
 }
-
 
 enum JobStatus {
   PENDING

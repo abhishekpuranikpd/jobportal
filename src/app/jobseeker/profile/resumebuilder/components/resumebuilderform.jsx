@@ -5,19 +5,14 @@ import { useRouter } from "next/navigation";
 
 const ResumeBuilder = () => {
   const router = useRouter()
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
     aboutMe: "",
     education: [
-      {
-        institution: "",
-        degree: "",
-        fieldOfStudy: "",
-        year: "",
-        percentage: "",
-      },
+      { institution: "", degree: "", fieldOfStudy: "", year: "", percentage: "" },
     ],
     workExperience: [
       { company: "", position: "", duration: "", responsibilities: "" },
@@ -25,12 +20,7 @@ const ResumeBuilder = () => {
     skills: "",
     hobbies: "",
     certifications: [{ name: "", organization: "", year: "" }],
-    address: {
-      street: "",
-      city: "",
-      state: "",
-      zip: "",
-    },
+    address: { street: "", city: "", state: "", zip: "" },
   });
 
   const handleInputChange = (e) => {
@@ -57,7 +47,7 @@ const ResumeBuilder = () => {
       ...prevData,
       education: [
         ...prevData.education,
-        { institution: "", degree: "", fieldOfStudy: "", year: "" },
+        { institution: "", degree: "", fieldOfStudy: "", year: "", percentage: "" },
       ],
     }));
   };
@@ -72,10 +62,9 @@ const ResumeBuilder = () => {
     }));
   };
 
-  const generateModernPDF = () => {
+  // PDF generation function
+  const generateModernPDF = (formData) => {
     const doc = new jsPDF();
-
-    // Constants
     const margin = 15;
     const pageWidth = doc.internal.pageSize.width;
     const contentWidth = pageWidth - margin * 2;
@@ -83,7 +72,6 @@ const ResumeBuilder = () => {
     const lineSpacing = 6; // Reduced line spacing
     let y = margin;
 
-    // Function to draw border and header
     const drawPageHeader = () => {
       doc.setDrawColor(200);
       doc.setLineWidth(0.2);
@@ -95,23 +83,20 @@ const ResumeBuilder = () => {
       );
     };
 
-    // Function to check if enough space is available on the current page
     const checkForSpace = (requiredSpace) => {
       const spaceLeft = doc.internal.pageSize.height - y - margin;
       if (spaceLeft < requiredSpace) {
         doc.addPage();
-        y = margin; // Reset the Y position for the new page
-        drawPageHeader(); // Redraw the border on the new page
+        y = margin;
+        drawPageHeader();
       }
     };
 
-    // Function to add content with overflow handling
     const addContent = (contentFn) => {
       checkForSpace(30); // Ensure there is enough space for the content
       contentFn();
     };
 
-    // Candidate Name and Contact Information
     const addNameAndContact = () => {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(20);
@@ -129,7 +114,6 @@ const ResumeBuilder = () => {
       y += sectionSpacing;
     };
 
-    // Address Section
     const addAddress = () => {
       if (
         formData.address.street ||
@@ -139,7 +123,7 @@ const ResumeBuilder = () => {
       ) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14);
-        doc.text("Address", margin, y); // Left-aligned heading
+        doc.text("Address", margin, y);
         y += sectionSpacing;
 
         doc.setFont("helvetica", "normal");
@@ -151,12 +135,11 @@ const ResumeBuilder = () => {
       }
     };
 
-    // About Me Section
     const addAboutMe = () => {
       if (formData.aboutMe) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14);
-        doc.text("About Me", margin, y); // Left-aligned heading
+        doc.text("About Me", margin, y);
         y += lineSpacing;
 
         doc.setFont("helvetica", "normal");
@@ -167,12 +150,11 @@ const ResumeBuilder = () => {
       }
     };
 
-    // Education Section
     const addEducation = () => {
       if (formData.education.length > 0) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14);
-        doc.text("Education", margin, y); // Left-aligned heading
+        doc.text("Education", margin, y);
         y += sectionSpacing;
 
         formData.education.forEach((edu) => {
@@ -193,12 +175,11 @@ const ResumeBuilder = () => {
       }
     };
 
-    // Work Experience Section
     const addWorkExperience = () => {
       if (formData.workExperience.length > 0) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14);
-        doc.text("Work Experience", margin, y); // Left-aligned heading
+        doc.text("Work Experience", margin, y);
         y += sectionSpacing;
 
         formData.workExperience.forEach((exp) => {
@@ -222,36 +203,34 @@ const ResumeBuilder = () => {
       }
     };
 
-    // Skills Section
     const addSkills = () => {
       if (formData.skills) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14);
-        doc.text("Skills", margin, y); // Left-aligned heading
+        doc.text("Skills", margin, y);
         y += sectionSpacing;
 
         doc.setFont("helvetica", "normal");
         doc.setFontSize(12);
 
         const skills = formData.skills.split(",").map((skill) => skill.trim());
-        const skillsText = skills.join(" • "); // Use bullet points for separation
-        const splitSkills = doc.splitTextToSize(skillsText, contentWidth); // Wrap skills within page width
+        const skillsText = skills.join(" • ");
+        const splitSkills = doc.splitTextToSize(skillsText, contentWidth);
 
         splitSkills.forEach((line) => {
           doc.text(line, margin, y);
           y += lineSpacing;
         });
 
-        y += 10; // Add spacing after the section
+        y += 10;
       }
     };
 
-    // Hobbies Section
     const addHobbies = () => {
       if (formData.hobbies) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14);
-        doc.text("Hobbies", margin, y); // Left-aligned heading
+        doc.text("Hobbies", margin, y);
         y += sectionSpacing;
 
         doc.setFont("helvetica", "normal");
@@ -261,12 +240,11 @@ const ResumeBuilder = () => {
       }
     };
 
-    // Certifications Section
     const addCertifications = () => {
       if (formData.certifications.length > 0) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(14);
-        doc.text("Certifications", margin, y); // Left-aligned heading
+        doc.text("Certifications", margin, y);
         y += sectionSpacing;
 
         formData.certifications.forEach((cert) => {
@@ -282,10 +260,7 @@ const ResumeBuilder = () => {
       }
     };
 
-    // Add the header border on the first page
     drawPageHeader();
-
-    // Add all sections with overflow handling
     addContent(addNameAndContact);
     addContent(addAddress);
     addContent(addAboutMe);
@@ -295,7 +270,6 @@ const ResumeBuilder = () => {
     addContent(addHobbies);
     addContent(addCertifications);
 
-    // Footer
     doc.setFont("helvetica", "italic");
     doc.setFontSize(10);
     doc.setTextColor(100);
@@ -306,29 +280,47 @@ const ResumeBuilder = () => {
       { align: "right" }
     );
 
-    // Save the document
     doc.save(`${formData.fullName}-resume.pdf`);
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
   
-    // Generate the PDF and download it
     try {
-      generateModernPDF(); // This will trigger the PDF download
+      const response = await fetch('/api/jobseeker/resumebuilderai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
   
-      // After the PDF is generated, navigate to the absolute path /jobseeker/profile/resume
-      router.push('/jobseeker/profile/resume');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText); // Log error response
+        throw new Error('Error generating resume');
+      }
+  
+      const result = await response.json();
+      console.log('Generated data:', result); // Log the result to check if formData is as expected
+      generateModernPDF(result.formData);
     } catch (error) {
-      console.error("Error during PDF generation:", error);
-      alert('Error generating the resume!');
+      console.error('Error:', error);
     }
   };
+
+  
+  
   
   return (
     <div className="container mt-8 mx-auto p-6 md:pb-8 pb-96 bg-white shadow-lg rounded-lg max-w-2xl">
       <h1 className="text-xl font-bold text-center mb-1">Resume Builder from Peperk.in</h1>
       <h1 className="text-sm font-normal text-center mb-6">(After Generating upload into resume section)</h1>
+      <button
+  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+>
+  Download Resume
+</button>
 
       <form onSubmit={handleFormSubmit} className="space-y-6">
         {/* Personal Details */}
@@ -481,18 +473,18 @@ const ResumeBuilder = () => {
                 className="w-full p-3 border rounded-xl mt-1 shadow-sm"
               />
 
-              <input
-                type="text"
-                name="year"
-                placeholder="Year"
-                value={edu.year}
-                onChange={(e) => {
-                  const updatedEducation = [...formData.education];
-                  updatedEducation[idx].year = e.target.value;
-                  setFormData({ ...formData, education: updatedEducation });
-                }}
-                className="w-full p-3 border rounded-xl mt-1 shadow-sm"
-              />
+<input
+  type="date"
+  name="year"
+  value={edu.year}
+  onChange={(e) => {
+    const updatedEducation = [...formData.education];
+    updatedEducation[idx].year = e.target.value; // Store the full date (YYYY-MM-DD)
+    setFormData({ ...formData, education: updatedEducation });
+  }}
+  className="w-full p-3 border rounded-xl mt-1 shadow-sm"
+/>
+
             </div>
           ))}
           <button

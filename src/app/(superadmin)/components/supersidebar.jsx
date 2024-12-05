@@ -11,6 +11,8 @@ import {
   PlusCircle,
   Building,
   UserCheck2,
+  BuildingIcon,
+  PenOffIcon,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -72,6 +74,18 @@ const Sidebar = ({ data }) => {
       path: "/profile/job-seekers",
       icon: <UserCheck2 size={20} />,
       permissions: [Permission.MANAGE_JOBSEEKER, Permission.VIEW_JOBSEEKER],
+    },
+    {
+      title: "Industries",
+      path: "/profile/industries",
+      icon: <BuildingIcon size={20} />,
+      roles: ["SUPERADMIN"],
+    },
+    {
+      title: "Skills",
+      path: "/profile/skill",
+      icon: <PenOffIcon size={20} />,
+      roles: ["SUPERADMIN"],
     },
     {
       title: "Logout",
