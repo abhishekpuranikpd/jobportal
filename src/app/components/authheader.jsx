@@ -17,7 +17,7 @@ const AuthNavBar = () => {
   };
 
   return (
-    <nav className="container mx-auto px-4 md:px-16 fixed start-0 top-0 z-20 w-full mb-10 bg-[#FFFFFF] shadow-sm">
+    <nav className=" px-4 md:px-16 fixed start-0 top-0 z-20 w-full mb-10 bg-[#FFFFFF] shadow-sm">
       <div className="mx-auto container flex max-w-screen-xl flex-wrap items-center justify-between py-4">
         <Link href="/">
           <span className="flex cursor-pointer items-center rtl:space-x-reverse">

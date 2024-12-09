@@ -22,18 +22,18 @@ const MBanner = () => {
    
  
     {
-      src: "https://res.cloudinary.com/dnckhli5u/image/upload/v1730443878/Why-you-should-create-a-job-portal-for-your-organizations-website_033e017b0_3963_s9pivr.jpg",
+      src: "https://utfs.io/f/lGXHWxAxOCbVzHfg62W7XPLtOIuJY4GTiF3z02Rq6nrc8QAB",
       
     },
   ];
 
   return (
     <>
-      <div className="mx-5 flex justify-center items-center  mb-8">
+      <div className="mx-auto flex justify-center w-full items-center  mb-8">
         {" "}
         <div
           className={`w-full 
-          ml-3 justify-center text-center items-center md:pt-4 `}
+          pl-3 justify-center text-center items-center md:pt-4 `}
         >
           <div className="w-full mx-auto flex justify-center items-center ">
             <Carousel
@@ -49,7 +49,7 @@ const MBanner = () => {
                       src={image.src}
                       width={1000}
                       height={600}
-                      className="w-full h-full rounded-[15px] p-2"
+                      className="w-full h-full rounded-[15px] shadow-sm "
                       alt={``}
                     />{" "}
                     <div className="absolute text-start items-start ml-4 bottom-4 w-full"></div>

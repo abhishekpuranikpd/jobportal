@@ -111,6 +111,7 @@ model AIResumeGeneratedData {
   jobseeker      Jobseeker @relation(fields: [jobseekerId], references: [id]) // Correct relation field
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+   @@index([jobseekerId, id]) 
 }
 
 model Resume {

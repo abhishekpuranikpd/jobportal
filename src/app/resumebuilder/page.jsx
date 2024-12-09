@@ -1,15 +1,11 @@
-import JobSearchBar from "./components/hero";
-import NavBar from "./components/header";
-import Footer from "./components/footer";
-import { db } from "@/lib/db";
-import { getSession } from "@/lib/jobseekerauth";
-import AboutUs from "./(site)/components/aboutus";
-import MBanner from "./employer/components/mainslider";
-import Testimonials from "./(site)/components/reviews";
-import JobLocationFilter from "./components/locationbasedjobs";
-import AIResumeBuilder from "./components/airesumebuilderclient";
+import React from 'react'
+import ResumeBuilderForm from './components/resumebuilderform'
+import { db } from '@/lib/db';
+import { getSession } from '@/lib/jobseekerauth';
+import NavBar from '../components/header';
+import Footer from '../components/footer';
 
-export default async function Home() {
+const page =async () => {
   const jobPosts = await db.Job.findMany({
     include: { employer: true },
   });
@@ -39,16 +35,12 @@ export default async function Home() {
   }
 
   return (
-    <div className="">
+      <div>   
+        
+        
       <NavBar data={data} />  {/* Pass data (user info) to NavBar */}
-      <JobSearchBar jobPosts={jobPosts} />
-      <JobLocationFilter JobPosts={jobPosts} />
-      <AIResumeBuilder/>
-    
-      <AboutUs />
-  
-      <Testimonials />
-      <Footer />
-    </div>
-  );
+      <ResumeBuilderForm/> <Footer/></div>
+  )
 }
+
+export default page

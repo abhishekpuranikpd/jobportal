@@ -22,7 +22,7 @@ const NavBar = ({ data }) => {
   const isJobSeeker = !!data?.fullName; // Check if data has job seeker-specific fields
 
   return (
-    <nav className="fixed container mx-auto px-4 md:px-16 top-0 z-20 w-full mb-10 bg-white shadow-sm">
+    <nav className="fixed  px-4 md:px-16 top-0 z-20 w-full mb-10 bg-white shadow-sm">
       <div className="container mx-auto flex flex-wrap items-center justify-between py-4 ">
         <Link href="/">
           <span className="flex cursor-pointer items-center">

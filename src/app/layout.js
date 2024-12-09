@@ -52,7 +52,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#FAF9F6]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-r from-blue-50 via-white to-blue-100`}
       >
         <div className="">  <NextTopLoader />    
        {children}</div>
