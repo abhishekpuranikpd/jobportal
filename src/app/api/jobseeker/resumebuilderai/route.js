@@ -125,24 +125,24 @@ function isJson(str) {
     return false;
   }
 }
-const puredata = JSON.stringify(generatedData)
+
 // Function to save AI-enhanced resume data to the database
-async function saveAIResumeGeneratedData(jobseekerId, puredata) {
+async function saveAIResumeGeneratedData(jobseekerId, generatedData) {
   try {
     await db.AIResumeGeneratedData.create({
       data: {
         jobseekerId,
-        fullName: puredata.fullName,
-        email: puredata.email,
-        phone: puredata.phone,
-        aboutMe: puredata.aboutMe,  // Ensure spacing and formatting
-        skills: puredata.skills,
-        hobbies: puredata.hobbies,
-        certifications: puredata.certifications,
-        addressStreet: puredata.address?.street,
-        addressCity:puredata.address?.city,
-        addressState: puredata.address?.state,
-        addressZip: puredata.address?.zip,
+        fullName: generatedData.fullName,
+        email: generatedData.email,
+        phone: generatedData.phone,
+        aboutMe: generatedData.aboutMe,  // Ensure spacing and formatting
+        skills: generatedData.skills,
+        hobbies: generatedData.hobbies,
+        certifications: generatedData.certifications,
+        addressStreet: generatedData.address?.street,
+        addressCity: generatedData.address?.city,
+        addressState: generatedData.address?.state,
+        addressZip: generatedData.address?.zip,
         education: JSON.stringify(generatedData.education), // Ensure the data is stored as a string or in a format you prefer
         workExperience: JSON.stringify(generatedData.workExperience), // Ensure this is stored appropriately
       },
@@ -152,5 +152,3 @@ async function saveAIResumeGeneratedData(jobseekerId, puredata) {
     throw new Error("Failed to save resume data.");
   }
 }
-
-
