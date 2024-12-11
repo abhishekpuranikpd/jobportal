@@ -179,7 +179,7 @@ const JobSearchBar = ({ jobPosts }) => {
             >
               <CarouselContent className="flex gap-4">
                 {jobPosts.slice(0, 5).map((job, index) => (
-                  <CarouselItem key={index} className="min-w-[300px]">
+                  <CarouselItem key={index} className="min-w-[300px] md:basis-1/3 lg:basis-1/5">
                     <Card className="bg-white shadow-lg rounded-lg">
                       <CardContent>
                         <div className="w-full mb-4">
