@@ -105,46 +105,54 @@ const JobSearchBar = ({ jobPosts }) => {
 
           {/* Filtered Jobs */}
           {hasSearchInputs && filteredJobs.length > 0 && (
-            <div className="container mx-auto mt-10">
-              <h2 className="text-xl font-bold text-center mb-6">Filtered Jobs</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="container mx-auto mt-8 flex  flex-col justify-center items-center">
+              <h2 className="text-xl font-bold text-center mb-4">
+                Filtered Jobs
+              </h2>
+              <div className="flex flex-wrap justify-center gap-4">
                 {filteredJobs.slice(0, visibleJobs).map((job) => (
                   <Card
                     key={job.id}
-                    className="bg-white shadow-lg rounded-lg p-6"
+                    className="w-80 bg-transparent  bg-[#FAF9F6] shadow-xl rounded-[15px] p-4"
                   >
-                    <CardContent>
-                      <div className="flex items-start mb-3">
-                        <Building2Icon className="text-[#5271FF] mr-3" />
+                    <CardContent className="flex flex-col p-2 rounded-3xl h-auto">
+                      <div className="mb-3 flex items-start">
+                        <span className="mx-3 my-1">
+                          <Building2Icon />
+                        </span>
                         <div className="flex-1">
                           <Link href={`/jobs/${job.id}`}>
-                            <h3 className="font-bold text-lg text-[#243460] hover:text-[#5271FF]">
+                            <span className="font-bold hover:text-blue-500 text-[14px] md:text-xl">
                               {job.title || "Untitled Job"}
-                            </h3>
+                            </span>
                           </Link>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-xs">
                             {job.employer.name || "Unknown Company"}
                           </p>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-2 text-sm">
-                        <p className="flex items-center gap-1 border px-2 py-1 rounded-full text-gray-600">
-                          <MapPin size={16} className="text-[#5271FF]" />
+                      <div className="flex flex-wrap   items-center font-bold gap-2 md:pb-1">
+                        <p className="text-xs border-2  px-2 py-1 rounded-full flex items-center">
+                          <MapPin className="text-[#243460] mr-1" size={16} />
                           {job.location || "Location not available"}
                         </p>
-                        <p className="flex items-center gap-1 border px-2 py-1 rounded-full text-gray-600">
-                          <Clock size={16} className="text-[#5271FF]" />
+                        <p className="text-xs border-2  px-2 py-1 rounded-full flex items-center">
+                          <Clock className="text-[#243460] mr-1" size={16} />
                           {job.employmentType || "Full Time"}
                         </p>
-                        <p className="flex items-center gap-1 border px-2 py-1 rounded-full text-gray-600">
-                          <IndianRupeeIcon size={16} className="text-[#5271FF]" />
+                        <p className="text-xs  border-2  px-2 py-1 rounded-full flex items-center">
+                          <IndianRupeeIcon
+                            className="text-[#243460] mr-1"
+                            size={16}
+                          />
                           {job.salaryMin?.toLocaleString()} -{" "}
-                          {job.salaryMax?.toLocaleString()} / year
+                          {job.salaryMax?.toLocaleString()}
+                          <span className="text-[#243460]"> / year</span>
                         </p>
                       </div>
-                      <div className="mt-4">
+                      <div className="flex items-center justify-center gap-1 mt-4">
                         <Link href={`/jobs/${job.id}`}>
-                          <button className="w-full bg-[#5271FF] text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-[#405ed0] transition-all">
+                          <button className="bg-[#5271FF] text-white font-semibold text-xs md:text-sm p-2 rounded-xl shadow-md w-full">
                             View Details
                           </button>
                         </Link>
@@ -155,10 +163,10 @@ const JobSearchBar = ({ jobPosts }) => {
               </div>
 
               {visibleJobs < filteredJobs.length && (
-                <div className="flex justify-center mt-6">
+                <div className="flex justify-center mt-4">
                   <button
                     onClick={loadMoreJobs}
-                    className="bg-[#5271FF] text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:bg-[#405ed0]"
+                    className="bg-[#5271FF] text-white font-semibold px-4 py-2 rounded-lg"
                   >
                     Load More
                   </button>
