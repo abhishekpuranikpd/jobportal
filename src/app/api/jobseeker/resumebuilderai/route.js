@@ -5,11 +5,11 @@ import { generateText } from "ai";
 
 // Function to handle POST requests
 export async function POST(req) {
-
-const loggeduser = await getSession()
+  const loggeduser = await getSession();
   const jobseekerId = await db.Jobseeker.findUnique({
-    where : {email : loggeduser.email}
-  })
+    where: { email: loggeduser.email },
+  });
+
   try {
     // Parse JSON data from the request body (client data)
     const formData = await req.json();
@@ -70,10 +70,13 @@ async function generateGeminiEnhancedResume(formData) {
     const { text } = await generateText({
       model: google("gemini-1.5-pro-latest"),
       prompt,
+      options: { timeout: 60000 }, // Set timeout to 60 seconds
     });
 
+    // Log the raw response for debugging
+    console.log("Generated Resume Text:", text);
+
     const cleanedText = cleanResponse(text);
-console.log(text);
 
     // Check and remove 'json' prefix if it exists
     let cleanedJsonText = cleanedText;
@@ -129,6 +132,7 @@ function isJson(str) {
 // Function to save AI-enhanced resume data to the database
 async function saveAIResumeGeneratedData(jobseekerId, generatedData) {
   try {
+    // Directly save the parsed data to the database
     await db.AIResumeGeneratedData.create({
       data: {
         jobseekerId,
@@ -147,6 +151,8 @@ async function saveAIResumeGeneratedData(jobseekerId, generatedData) {
         workExperience: JSON.stringify(generatedData.workExperience), // Ensure this is stored appropriately
       },
     });
+
+    console.log("Resume data saved successfully to the database!");
   } catch (error) {
     console.error("Error saving resume data to database:", error);
     throw new Error("Failed to save resume data.");

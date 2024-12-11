@@ -8,6 +8,7 @@ import MBanner from "./employer/components/mainslider";
 import Testimonials from "./(site)/components/reviews";
 import JobLocationFilter from "./components/locationbasedjobs";
 import AIResumeBuilder from "./components/airesumebuilderclient";
+import GenerateContentComponent from "./resumebuilder/components/trailresume";
 
 export default async function Home() {
   const jobPosts = await db.Job.findMany({
@@ -48,6 +49,7 @@ export default async function Home() {
       <AboutUs />
   
       <Testimonials />
+      <GenerateContentComponent/>
       <Footer />
     </div>
   );
