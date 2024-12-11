@@ -168,59 +168,63 @@ const JobSearchBar = ({ jobPosts }) => {
           )}
 
           {/* Recent Jobs Carousel */}
-          <div className="container mx-auto px-16 mt-16">
-            <h2 className="text-xl font-bold text-center mb-6">Recent Jobs</h2>
+          <div className="container mx-auto mt-8 flex flex-col justify-center items-center">
+            <h2 className="text-xl font-bold text-center mb-4">Recent Jobs</h2>
             <Carousel
               opts={{ align: "start" }}
               plugins={[plugin.current]}
               onMouseEnter={() => plugin.current.stop()}
               onMouseLeave={() => plugin.current.reset()}
-              className="w-full max-w-5xl mx-auto"
+              className="container w-[70%] mx-auto"
             >
-              <CarouselContent className="flex gap-4">
-                {jobPosts.slice(0, 5).map((job, index) => (
-                  <CarouselItem key={index} className="min-w-[300px] md:basis-1/3 lg:basis-1/5">
-                    <Card className="bg-white shadow-lg rounded-lg">
-                      <CardContent>
-                        <div className="w-full mb-4">
-                          {job.employer?.logo ? (
+              <CarouselContent>
+                {jobPosts.slice(0, 5).map((item, index) => (
+                  <CarouselItem
+                    key={index}
+                    className="w-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                  >
+                    <Card className="h-auto mb-4">
+                      <CardContent className="flex flex-col p-2 rounded-3xl h-auto">
+                        <div className="w-full bg-white rounded-3xl mb-4">
+                          {item.employer?.logo ? (
                             <Image
-                              src={job.employer.logo}
-                              alt={job.employer.name}
+                              src={item.employer.logo}
                               width={600}
                               height={400}
-                              className="w-full h-28 object-cover rounded-lg"
+                              alt={item.employer.name}
+                              className="object-cover bg-[#5271FF] rounded-3xl h-24 md:h-28"
                             />
                           ) : (
-                            <div className="w-full h-28 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
-                              No Logo
+                            <div className="relative w-full h-24 md:h-28 flex justify-center items-center border-[#ffce38] rounded-3xl">
+                              Company Logo
                             </div>
                           )}
                         </div>
-                        <h3 className="font-bold text-lg text-center text-[#243460]">
-                          {job.title}
-                        </h3>
-                        <p className="text-sm text-center text-gray-500">
-                          {job.employer.name}
+                        <p className="text-[14px] md:text-[15px] font-bold text-[#243460] mb-2 text-center">
+                          {item.title}
                         </p>
-                        <div className="mt-4">
-                          <Link href={`/jobs/${job.id}`}>
-                            <button className="w-full bg-[#5271FF] text-white font-semibold px-4 py-2 rounded-lg hover:bg-[#405ed0] transition-all">
+                        <p className="text-[12px] md:text-[13px] font-semibold text-[#ff5e00] mb-4 text-center">
+                          {item.employer.name}
+                        </p>
+                        <div className="flex justify-center items-center gap-1">
+                          <Link href={`/jobs/${item.id}`}>
+                            <button className="bg-[#5271FF] text-white font-semibold text-xs md:text-sm p-2 rounded-xl shadow-md w-full">
                               View Details
                             </button>
                           </Link>
+                        </div>
+                        <div className="text-[10px] md:text-[12px] mt-2 text-end text-gray-500 mb-4">
+                          <span>
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </span>
                         </div>
                       </CardContent>
                     </Card>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious>
-                <ChevronLeft className="text-[#5271FF]" />
-              </CarouselPrevious>
-              <CarouselNext>
-                <ChevronRight className="text-[#5271FF]" />
-              </CarouselNext>
+              <CarouselPrevious />
+              <CarouselNext />
             </Carousel>
           </div>
         </div>
