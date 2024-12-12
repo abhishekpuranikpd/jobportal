@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -13,6 +13,24 @@ import { Button } from "@/components/ui/button";
 
 const NavBar = ({ data }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolling, setScrolling] = useState(false);
+
+  // Handle scrolling event to change navbar background
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setScrolling(true);
+      } else {
+        setScrolling(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -22,15 +40,19 @@ const NavBar = ({ data }) => {
   const isJobSeeker = !!data?.fullName; // Check if data has job seeker-specific fields
 
   return (
-    <nav className="fixed  px-4 md:px-16 top-0 z-20 w-full mb-10 bg-white shadow-sm">
-      <div className="container mx-auto flex flex-wrap items-center justify-between py-4 ">
+    <nav
+      className={`fixed px-4 md:px-16 top-0 z-20 w-full mb-10 shadow-sm transition-all duration-300 ${
+        scrolling ? "bg-white shadow-md" : "bg-transparent"
+      }`}
+    >
+      <div className="container mx-auto flex flex-wrap items-center justify-between py-4">
         <Link href="/">
           <span className="flex cursor-pointer items-center">
             <span className="self-center text-2xl font-bold text-[#243460]">
-          
-            Peperk.in
-            </span> <span className="self-center text-sm font-bold text-[#243460]">
-            (Beta)
+              Peperk.in
+            </span>{" "}
+            <span className="self-center text-sm font-bold text-[#243460]">
+              (Beta)
             </span>
           </span>
         </Link>
@@ -44,17 +66,17 @@ const NavBar = ({ data }) => {
               </span>
             </Link>
           )}
-             {(isEmployer) && (
+          {isEmployer && (
             <Link href="/employer/profile">
               <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
-               Dashboard
+                Dashboard
               </span>
             </Link>
           )}
-             {(isJobSeeker) && (
+          {isJobSeeker && (
             <Link href="/jobseeker/profile">
               <span className="cursor-pointer text-[#243460] hover:underline hover:underline-offset-8 hover:rounded-lg">
-               Dashboard
+                Dashboard
               </span>
             </Link>
           )}
@@ -98,14 +120,12 @@ const NavBar = ({ data }) => {
                 <button className="flex items-center justify-center text-[12px] font-sans font-semibold text-[#243460] w-8 h-8 bg-white border text-center border-[#243460] rounded-full focus:outline-none">
                   {data.fullName[0]} {/* Display first letter of full name */}
                 </button>
-              
               </>
             ) : isEmployer ? (
               <>
                 <button className="flex items-center justify-center text-[12px] font-sans font-semibold text-[#243460] w-8 h-8 bg-white border text-center border-[#243460] rounded-full focus:outline-none">
                   {data.name[0]} {/* Display first letter of company name */}
                 </button>
-             
               </>
             ) : (
               <Link href="/jobseeker/login">

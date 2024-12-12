@@ -398,7 +398,7 @@ const ResumeBuilderEdit = ({data}) => {
         {/* Certifications Section */}
         <div>
           <label className="block text-sm font-medium">Certifications</label>
-          {formData.certifications.map((cert, idx) => (
+          {formData.certifications?.map((cert, idx) => (
             <div key={idx} className="space-y-4">
               <input
                 type="text"

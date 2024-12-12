@@ -62,7 +62,7 @@ const JobSearchBar = ({ jobPosts }) => {
         <div className="container mx-auto px-5 py-10">
           {/* Header */}
           <div className="text-center">
-            <h1 className="text-[30px] mt-4 md:text-[40px] text-[#5271FF] font-extrabold mb-4">
+            <h1 className="text-[30px] md:mt-4  mt-12 md:text-[40px] text-[#5271FF] font-extrabold mb-4">
               Unlock Your Dream Career
             </h1>
             <p className="mb-8 md:w-2/3 mx-auto font-semibold text-[#243460]">

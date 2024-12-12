@@ -212,3 +212,25 @@ function isJson(str) {
     return false;
   }
 }
+
+
+
+//
+
+  const prompt = `Enhance the following resume details. Improve phrasing, add a professional tone, and summarize effectively. Add relevant sections like hobbies and responsibilities based on skills and work experience. Return only the following JSON object, and ensure it is valid. Ensure spacing between each section, especially in the 'About Me' and 'Responsibilities' sections for clarity. Avoid any raw text or unnecessary characters.
+
+  {
+    "fullName": "<Enhanced Full Name>",
+    "email": "<Enhanced Email>",
+    "phone": "<Enhanced Phone>",
+    "aboutMe": "<Enhanced About Me paragraph with clear spacing and justification>",
+    "education": [{"institution": "<Name>", "degree": "<Degree>", "fieldOfStudy": "<Field>", "year": "<Year>", "percentage": "<Percentage>"}],
+    "workExperience": [{"company": "<Company>", "position": "<Position>", "duration": "<Duration>", "responsibilities": "<Responsibility details with clear separation and structure>"}],
+    "skills": "<Comma-separated list of skills with appropriate structure>",
+    "hobbies": "<Comma-separated list of hobbies>",
+    "certifications": [{"name": "<Certification Name>", "organization": "<Organization>", "year": "<Year>"}],
+    "address": {"street": "<Street>", "city": "<City>", "state": "<State>", "zip": "<Zip Code>"}
+  }
+  Input:
+  ${JSON.stringify(formData)}
+  `;

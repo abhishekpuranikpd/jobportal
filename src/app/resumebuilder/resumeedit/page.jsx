@@ -19,14 +19,15 @@ const ResumeEditPage = async () => {
     const data = await db.AIResumeGeneratedData.findFirst({
       where: { jobseekerId: jobseeker.id },
     });
-    
+
     if (!data) {
       throw new Error("Resume data not found");
     }
 
-
     return (
-  <><ResumeBuilderEdit data={data}/></>
+      <>
+        <ResumeBuilderEdit data={data} />
+      </>
     );
   } catch (error) {
     console.error(error);
@@ -34,5 +35,4 @@ const ResumeEditPage = async () => {
   }
 };
 
-
-export default ResumeEditPage
+export default ResumeEditPage;

@@ -1,0 +1,71 @@
+  {/* Certifications Section */}
+        {/* <div>
+          <label className="block text-sm font-medium">Certifications</label>
+          {formData.certifications?.map((cert, idx) => (
+            <div key={idx} className="space-y-4">
+              <input
+                type="text"
+                name="name"
+                placeholder="Certification Name"
+                value={cert.name}
+                onChange={(e) => {
+                  const updatedCertifications = [...formData.certifications];
+                  updatedCertifications[idx].name = e.target.value;
+                  setFormData({
+                    ...formData,
+                    certifications: updatedCertifications,
+                  });
+                }}
+                className="w-full p-3 border rounded-xl mt-1 shadow-sm"
+              />
+              <input
+                type="text"
+                name="organization"
+                placeholder="Organization"
+                value={cert.organization}
+                onChange={(e) => {
+                  const updatedCertifications = [...formData.certifications];
+                  updatedCertifications[idx].organization = e.target.value;
+                  setFormData({
+                    ...formData,
+                    certifications: updatedCertifications,
+                  });
+                }}
+                className="w-full p-3 border rounded-xl mt-1 shadow-sm"
+              />
+              <input
+                type="text"
+                name="year"
+                placeholder="Year"
+                value={cert.year}
+                onChange={(e) => {
+                  const updatedCertifications = [...formData.certifications];
+                  updatedCertifications[idx].year = e.target.value;
+                  setFormData({
+                    ...formData,
+                    certifications: updatedCertifications,
+                  });
+                }}
+                className="w-full p-3 border rounded-xl mt-1 shadow-sm"
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => {
+              setFormData((prevData) => ({
+                ...prevData,
+                certifications: [
+                  ...prevData.certifications,
+                  { name: "", organization: "", year: "" },
+                ],
+              }));
+            }}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-600 transition"
+          >
+            Add Certification
+          </button>
+        </div> */}
+
+
+    // certifications: data?.certifications || [{ name: "", organization: "", year: "" }],

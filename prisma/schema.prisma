@@ -93,8 +93,10 @@ model Jobseeker {
 }
 
 model AIResumeGeneratedData {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  fullName       String?
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  firstName String?
+  lastName  String?
+
   email          String?
   phone          String?
   aboutMe        String?
@@ -111,7 +113,8 @@ model AIResumeGeneratedData {
   jobseeker      Jobseeker @relation(fields: [jobseekerId], references: [id]) // Correct relation field
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-   @@index([jobseekerId, id]) 
+
+  @@index([jobseekerId, id])
 }
 
 model Resume {

@@ -1,0 +1,219 @@
+  const generateModernPDF = (formData) => {
+    const doc = new jsPDF();
+    const margin = 15;
+    const pageWidth = doc.internal.pageSize.width;
+    const contentWidth = pageWidth - margin * 2;
+    const sectionSpacing = 8; // Reduced section spacing
+    const lineSpacing = 6; // Reduced line spacing
+    let y = margin;
+
+    const drawPageHeader = () => {
+      doc.setDrawColor(200);
+      doc.setLineWidth(0.2);
+      doc.rect(
+        margin / 2,
+        margin / 2,
+        pageWidth - margin,
+        doc.internal.pageSize.height - margin
+      );
+    };
+
+    const checkForSpace = (requiredSpace) => {
+      const spaceLeft = doc.internal.pageSize.height - y - margin;
+      if (spaceLeft < requiredSpace) {
+        doc.addPage();
+        y = margin;
+        drawPageHeader();
+      }
+    };
+
+    const addContent = (contentFn) => {
+      checkForSpace(30); // Ensure there is enough space for the content
+      contentFn();
+    };
+
+    const addNameAndContact = () => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(20);
+      doc.text(formData.fullName, pageWidth / 2, y, { align: "center" });
+      y += 10;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      doc.text(
+        `Email: ${formData.email} | Phone: ${formData.phone}`,
+        pageWidth / 2,
+        y,
+        { align: "center" }
+      );
+      y += sectionSpacing;
+    };
+
+    const addAddress = () => {
+      if (
+        formData.address.street ||
+        formData.address.city ||
+        formData.address.state ||
+        formData.address.zip
+      ) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("Address", margin, y);
+        y += sectionSpacing;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        const address = `${formData.address.street}, ${formData.address.city}, ${formData.address.state}, ${formData.address.zip}`;
+        const addressText = doc.splitTextToSize(address, contentWidth);
+        doc.text(addressText, margin, y);
+        y += addressText.length * lineSpacing + sectionSpacing;
+      }
+    };
+
+    const addAboutMe = () => {
+      if (formData.aboutMe) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("About Me", margin, y);
+        y += lineSpacing;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        const aboutMeText = doc.splitTextToSize(formData.aboutMe, contentWidth);
+        doc.text(aboutMeText, margin, y);
+        y += aboutMeText.length * lineSpacing + sectionSpacing;
+      }
+    };
+
+    const addEducation = () => {
+      if (formData.education.length > 0) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("Education", margin, y);
+        y += sectionSpacing;
+
+        formData.education.forEach((edu) => {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(12);
+          doc.text(`${edu.degree} in ${edu.fieldOfStudy}`, margin, y);
+          y += lineSpacing;
+
+          doc.setFont("helvetica", "normal");
+          doc.text(
+            `${edu.institution} | ${edu.year} | ${edu.percentage}%`,
+            margin,
+            y
+          );
+          y += sectionSpacing;
+        });
+        y += 10;
+      }
+    };
+
+    const addWorkExperience = () => {
+      if (formData.workExperience.length > 0) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("Work Experience", margin, y);
+        y += sectionSpacing;
+
+        formData.workExperience.forEach((exp) => {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(12);
+          doc.text(`${exp.position} at ${exp.company}`, margin, y);
+          y += lineSpacing;
+
+          doc.setFont("helvetica", "normal");
+          doc.text(`Duration: ${exp.duration}`, margin, y);
+          y += lineSpacing;
+
+          const responsibilities = doc.splitTextToSize(
+            `Responsibilities: ${exp.responsibilities}`,
+            contentWidth
+          );
+          doc.text(responsibilities, margin, y);
+          y += responsibilities.length * lineSpacing;
+        });
+        y += 10;
+      }
+    };
+
+    const addSkills = () => {
+      if (formData.skills) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("Skills", margin, y);
+        y += sectionSpacing;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+
+        const skills = formData.skills.split(",").map((skill) => skill.trim());
+        const skillsText = skills.join(" • ");
+        const splitSkills = doc.splitTextToSize(skillsText, contentWidth);
+
+        splitSkills.forEach((line) => {
+          doc.text(line, margin, y);
+          y += lineSpacing;
+        });
+
+        y += 10;
+      }
+    };
+
+    const addHobbies = () => {
+      if (formData.hobbies) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("Hobbies", margin, y);
+        y += sectionSpacing;
+
+        doc.setFont("helvetica", "normal");
+        const hobbiesText = doc.splitTextToSize(formData.hobbies, contentWidth);
+        doc.text(hobbiesText, margin, y);
+        y += hobbiesText.length * lineSpacing + sectionSpacing;
+      }
+    };
+
+    const addCertifications = () => {
+      if (formData.certifications.length > 0) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("Certifications", margin, y);
+        y += sectionSpacing;
+
+        formData.certifications.forEach((cert) => {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(12);
+          doc.text(cert.name, margin, y);
+          y += lineSpacing;
+
+          doc.setFont("helvetica", "normal");
+          doc.text(`${cert.organization} | ${cert.year}`, margin, y);
+          y += sectionSpacing;
+        });
+      }
+    };
+
+    drawPageHeader();
+    addContent(addNameAndContact);
+    addContent(addAddress);
+    addContent(addAboutMe);
+    addContent(addEducation);
+    addContent(addWorkExperience);
+    addContent(addSkills);
+    addContent(addHobbies);
+    addContent(addCertifications);
+
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(
+      "Generated using peperk.in",
+      pageWidth - margin,
+      doc.internal.pageSize.height - margin,
+      { align: "right" }
+    );
+
+    doc.save(`${formData.fullName}-resume.pdf`);
+  };

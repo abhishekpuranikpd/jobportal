@@ -72,8 +72,8 @@ async function updateAIResumeGeneratedData(jobseekerId, resumebuilderId, formDat
         id: resumebuilderId,  // Ensure the ID is passed correctly here
       },
       data: {
-        fullName: formData.fullName,
-        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         phone: formData.phone,
         aboutMe: formData.aboutMe,
         skills: formData.skills,

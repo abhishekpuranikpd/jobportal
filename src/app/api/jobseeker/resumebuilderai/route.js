@@ -1,41 +1,93 @@
-import { db } from '@/lib/db';
-import { getSession } from '@/lib/jobseekerauth';
-import { google } from "@ai-sdk/google";
+import { db } from "@/lib/db";
+import { getSession } from "@/lib/jobseekerauth";
+import nodemailer from "nodemailer";
+import bcrypt from "bcryptjs"; // For password hashing
 import { generateText } from "ai";
+import { google } from "@ai-sdk/google";
 
 // Function to handle POST requests
 export async function POST(req) {
   const loggeduser = await getSession();
-  const jobseekerId = await db.Jobseeker.findUnique({
-    where: { email: loggeduser.email },
-  });
 
   try {
-    // Parse JSON data from the request body (client data)
+    // Check if Jobseeker exists based on email
+    let jobseeker = await db.Jobseeker.findUnique({
+      where: { email: loggeduser.email },
+    });
+
+    // If jobseeker doesn't exist, create a new Jobseeker and send a password email
+    if (!jobseeker) {
+      const password = generateRandomPassword();
+      const hashedPassword = await bcrypt.hash(password, 10); // Hash the password before saving
+      jobseeker = await db.Jobseeker.create({
+        data: {
+          email: loggeduser.email,
+          fullName: loggeduser.fullName || "New Jobseeker", // Assuming 'fullName' exists in the session or request
+          password: hashedPassword, // Store hashed password
+        },
+      });
+
+      // Send password to email using nodemailer
+      await sendPasswordToEmail(loggeduser.email, password);
+
+      return new Response(
+        JSON.stringify({
+          message: "Jobseeker created and password sent to email!",
+        }),
+        {
+          status: 201,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    // Now, check if the jobseeker has an associated resume
+    let resume = await db.AIResumeGeneratedData.findFirst({
+      where: { jobseekerId: jobseeker.id }, // Find the first record with this jobseekerId
+    });
+
+    // Parse the form data from the request body (client data)
     const formData = await req.json();
 
-    // Generate AI-enhanced resume data
-    const generatedData = await generateGeminiEnhancedResume(formData);
+    if (resume) {
+      // Resume exists, so we edit it
+      const generatedData = await generateGeminiEnhancedResume(formData);
+      await updateAIResumeGeneratedData(resume, generatedData);
 
-    // Save the enhanced resume data to the database
-    await saveAIResumeGeneratedData(jobseekerId.id, generatedData);
+      return new Response(
+        JSON.stringify({ message: "Resume updated successfully!" }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } else {
+      // Resume doesn't exist, create a new one
+      const generatedData = await generateGeminiEnhancedResume(formData);
+      await saveAIResumeGeneratedData(jobseeker.id, generatedData);
 
-    // Return a success response
-    return new Response(
-      JSON.stringify({ message: "Resume generated and saved successfully!" }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+      return new Response(
+        JSON.stringify({ message: "Resume generated and saved successfully!" }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
   } catch (error) {
-    console.error("Error generating resume:", error);
+    console.error("Error generating or saving resume:", error);
 
-    // Return an error response
     return new Response(
-      JSON.stringify({ message: "Internal Server Error", error: error.message }),
+      JSON.stringify({
+        message: "Internal Server Error",
+        error: error.message,
+      }),
       {
         status: 500,
         headers: {
@@ -51,12 +103,39 @@ async function generateGeminiEnhancedResume(formData) {
   const prompt = `Enhance the following resume details. Improve phrasing, add a professional tone, and summarize effectively. Add relevant sections like hobbies and responsibilities based on skills and work experience. Return only the following JSON object, and ensure it is valid. Ensure spacing between each section, especially in the 'About Me' and 'Responsibilities' sections for clarity. Avoid any raw text or unnecessary characters.
 
   {
-    "fullName": "<Enhanced Full Name>",
-    "email": "<Enhanced Email>",
-    "phone": "<Enhanced Phone>",
-    "aboutMe": "<Enhanced About Me paragraph with clear spacing and justification>",
-    "education": [{"institution": "<Name>", "degree": "<Degree>", "fieldOfStudy": "<Field>", "year": "<Year>", "percentage": "<Percentage>"}],
-    "workExperience": [{"company": "<Company>", "position": "<Position>", "duration": "<Duration>", "responsibilities": "<Responsibility details with clear separation and structure>"}],
+    "firstName": "< First Name>",
+     "lastName": "<Last Name>",
+    "email": "<Email>",
+    "phone": "<Phone>",
+    "aboutMe": "<Enhanced About Me paragraph with clear spacing and justification>","education": [
+  {
+    "institution": "",
+    "degree": "",
+    "fieldOfStudy": "",
+    "year": "",
+    "percentage": "",
+    "university": "",
+    "city": "",
+    "Gradingsystem": "",
+    "grade": ""
+  }
+],
+"workExperience": [
+  {
+    "company": "",
+    "position": "",
+    "duration": "",
+    "responsibilities": <write responsibilities according to the role position >,
+    "fromDate": "",  // Start date (MM/YYYY)
+    "toDate": "",    // End date (MM/YYYY)
+    "location": "",  // Location of the job
+    "department": "", // Department in which the person worked
+    "teamSize": "",   // Size of the team (optional)
+    "positionsUnderYou": "", // Positions under the person (if any)
+    "hadTeam": ""    // Yes/No (whether they managed a team)
+  }
+]
+
     "skills": "<Comma-separated list of skills with appropriate structure>",
     "hobbies": "<Comma-separated list of hobbies>",
     "certifications": [{"name": "<Certification Name>", "organization": "<Organization>", "year": "<Year>"}],
@@ -70,76 +149,50 @@ async function generateGeminiEnhancedResume(formData) {
     const { text } = await generateText({
       model: google("gemini-1.5-pro-latest"),
       prompt,
-      options: { timeout: 60000 }, // Set timeout to 60 seconds
+      options: { timeout: 60000 },
     });
-
-    // Log the raw response for debugging
-    console.log("Generated Resume Text:", text);
 
     const cleanedText = cleanResponse(text);
 
-    // Check and remove 'json' prefix if it exists
-    let cleanedJsonText = cleanedText;
-    if (cleanedText.startsWith('json')) {
-      cleanedJsonText = cleanedJsonText.slice(4).trim(); // Remove 'json' prefix
-    }
+    const parsedResponse = JSON.parse(cleanedText);
 
-    // Check if the cleaned response is valid JSON
-    let parsedResponse = null;
-    if (isJson(cleanedJsonText)) {
-      try {
-        parsedResponse = JSON.parse(cleanedJsonText);
-      } catch (e) {
-        console.error("Error parsing JSON:", e);
-      }
-    } else {
-      console.error("Response is not valid JSON:", cleanedJsonText);
-    }
-
-    // Validate fields in parsed response
     if (
       parsedResponse &&
-      parsedResponse.fullName &&
+      parsedResponse.firstName &&
       parsedResponse.email &&
       parsedResponse.education &&
       parsedResponse.workExperience
     ) {
       return parsedResponse;
     } else {
-      return formData;  // Fallback to original data if missing fields
+      throw new Error("Generated JSON is missing required fields.");
     }
   } catch (error) {
     console.error("Error during AI resume generation:", error);
-    return formData;  // Fallback to original data on error
+    return formData; // Fallback to original data on error
   }
 }
 
 // Function to clean unwanted characters like backticks, newlines, etc.
 function cleanResponse(response) {
-  return response.replace(/^\uFEFF|\s+|`/g, "").trim();
-}
-
-// Function to check if a string is valid JSON
-function isJson(str) {
-  try {
-    JSON.parse(str);
-    return true;
-  } catch (e) {
-    return false;
-  }
+  return response
+    .replace(/[`]/g, "") // Remove backticks
+    .replace(/^json/, "") // Remove 'json' prefix if present
+    .trim();
 }
 
 // Function to save AI-enhanced resume data to the database
 async function saveAIResumeGeneratedData(jobseekerId, generatedData) {
   try {
-    // Directly save the parsed data to the database
     await db.AIResumeGeneratedData.create({
       data: {
         jobseekerId,
-        fullName: generatedData.fullName,
+        firstName: generatedData.firstName,
+        lastName: generatedData.lastName,
+
         email: generatedData.email,
         phone: generatedData.phone,
-        aboutMe: generatedData.aboutMe,  // Ensure spacing and formatting
+        aboutMe: generatedData.aboutMe,
         skills: generatedData.skills,
         hobbies: generatedData.hobbies,
         certifications: generatedData.certifications,
@@ -147,8 +200,8 @@ async function saveAIResumeGeneratedData(jobseekerId, generatedData) {
         addressCity: generatedData.address?.city,
         addressState: generatedData.address?.state,
         addressZip: generatedData.address?.zip,
-        education: JSON.stringify(generatedData.education), // Ensure the data is stored as a string or in a format you prefer
-        workExperience: JSON.stringify(generatedData.workExperience), // Ensure this is stored appropriately
+        education: JSON.stringify(generatedData.education),
+        workExperience: JSON.stringify(generatedData.workExperience),
       },
     });
 
@@ -156,5 +209,73 @@ async function saveAIResumeGeneratedData(jobseekerId, generatedData) {
   } catch (error) {
     console.error("Error saving resume data to database:", error);
     throw new Error("Failed to save resume data.");
+  }
+}
+
+// Function to update existing AI-enhanced resume data in the database
+async function updateAIResumeGeneratedData(resume, generatedData) {
+  try {
+    await db.AIResumeGeneratedData.update({
+      where: { id: resume.id },
+      data: {
+        firstName: generatedData.firstName,
+        lastName: generatedData.lastName,
+        email: generatedData.email,
+        phone: generatedData.phone,
+        aboutMe: generatedData.aboutMe,
+        skills: generatedData.skills,
+        hobbies: generatedData.hobbies,
+        certifications: generatedData.certifications,
+        addressStreet: generatedData.address?.street,
+        addressCity: generatedData.address?.city,
+        addressState: generatedData.address?.state,
+        addressZip: generatedData.address?.zip,
+        education: JSON.stringify(generatedData.education),
+        workExperience: JSON.stringify(generatedData.workExperience),
+      },
+    });
+
+    console.log("Resume data updated successfully in the database!");
+  } catch (error) {
+    console.error("Error updating resume data in database:", error);
+    throw new Error("Failed to update resume data.");
+  }
+}
+
+// Function to generate a random password (you can adjust this method)
+function generateRandomPassword() {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+  let password = "";
+  for (let i = 0; i < 12; i++) {
+    password += characters.charAt(
+      Math.floor(Math.random() * characters.length)
+    );
+  }
+  return password;
+}
+
+// Function to send password to email using nodemailer
+async function sendPasswordToEmail(email, password) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail", // You can use any service like SendGrid or SMTP
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS, // You should use environment variables for security
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Your Peperk resume - Jobseeker Account Password",
+    text: `Welcome to the platform! Your account has been created. Here is your password: ${password}`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Password sent to email!");
+  } catch (error) {
+    console.error("Error sending email:", error);
   }
 }
