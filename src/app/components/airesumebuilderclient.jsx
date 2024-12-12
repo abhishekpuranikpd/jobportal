@@ -31,7 +31,7 @@ const AIResumeBuilder = () => {
               Stand out to employers with a resume that highlights your unique skills and experience. 
               Best of all, it’s free!
             </p>
-            <Link href="/resumebuilder">
+            <Link href="/jobseeker/profile/resumebuilder">
               <button className="bg-white text-[#5271FF] font-semibold px-6 py-3 rounded-full shadow-md hover:bg-[#405ed0] hover:text-white transition-all">
                 Build Your AI Resume Now
               </button>
@@ -105,7 +105,7 @@ const AIResumeBuilder = () => {
               Let your resume be your strongest advocate. Start using our AI Resume Builder now and 
               secure your next big opportunity.
             </p>
-            <Link href="/resumebuilder">
+            <Link href="/jobseeker/profile/resumebuilder">
               <button className="mt-6 bg-white text-[#5271FF] font-semibold px-6 py-3 rounded-full shadow-md hover:bg-[#405ed0] hover:text-white transition-all">
                 Get Started for Free
               </button>

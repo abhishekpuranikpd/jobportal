@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs"; // For password hashing
 import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
+import { cookies } from "next/headers"; // Import cookies from next/headers
 
 // Function to handle POST requests
 export async function POST(req) {
@@ -17,21 +18,54 @@ export async function POST(req) {
       where: { email },
     });
 
-    // If jobseeker doesn't exist, return an error message
+    // If jobseeker doesn't exist, create a new Jobseeker and send a password email
     if (!jobseeker) {
+      const password = generateRandomPassword();
+      const hashedPassword = await bcrypt.hash(password, 10); // Hash the password before saving
+      jobseeker = await db.Jobseeker.create({
+        data: {
+          email,
+          fullName: loggeduser?.fullName || "New Jobseeker", // Use logged user's full name or fallback
+          password: hashedPassword, // Store hashed password
+        },
+      });
+
+      // Send password to email using nodemailer
+      await sendPasswordToEmail(email, password);
+
+      // Set cookies for jobseeker ID and email
+      const headers = new Headers();
+      headers.append(
+        "Set-Cookie",
+        `jobseekerId=${jobseeker.id}; HttpOnly; Path=/; Secure; SameSite=Strict`
+      );
+      headers.append(
+        "Set-Cookie",
+        `email=${email}; HttpOnly; Path=/; Secure; SameSite=Strict`
+      );
+
       return new Response(
         JSON.stringify({
-          message: "Jobseeker not found. Please log in first.",
+          message: "Jobseeker created and password sent to email!",
         }),
         {
-          status: 404,
-          headers: {
-            "Content-Type": "application/json",
-          },
+          status: 201,
+          headers,
         }
       );
     }
-
+    const emailCookie = cookies().get("email");
+    if (!emailCookie || !emailCookie.value) {
+      throw new Error("Email cookie not found");
+    }
+    const newemail = emailCookie.value;
+    
+    // Find the jobseeker using the email
+    const newjobseeker = await db.Jobseeker.findUnique({
+      where: { email : newemail },
+    });
+    
+    const newjobseekerid = newjobseeker.id
     // Now, check if the jobseeker has an associated resume
     let resume = await db.AIResumeGeneratedData.findFirst({
       where: { jobseekerId: jobseeker.id }, // Find the first record with this jobseekerId
@@ -91,7 +125,7 @@ async function generateGeminiEnhancedResume(formData) {
 
   {
     "firstName": "< First Name>",
-    "lastName": "<Last Name>",
+     "lastName": "<Last Name>",
     "email": "<Email>",
     "phone": "<Phone>",
     "aboutMe": "<Enhanced About Me paragraph with clear spacing and justification>",
@@ -169,11 +203,12 @@ function cleanResponse(response) {
 }
 
 // Function to save AI-enhanced resume data to the database
-async function saveAIResumeGeneratedData(jobseekerId, generatedData) {
+async function saveAIResumeGeneratedData(jobseekerId, newjobseekerid , generatedData) {
   try {
+  const  finaljobseekerid = jobseekerId || newjobseekerid
     await db.AIResumeGeneratedData.create({
       data: {
-        jobseekerId,
+        jobseekerId : finaljobseekerid,
         firstName: generatedData.firstName,
         lastName: generatedData.lastName,
         email: generatedData.email,
@@ -225,5 +260,43 @@ async function updateAIResumeGeneratedData(resume, generatedData) {
   } catch (error) {
     console.error("Error updating resume data in database:", error);
     throw new Error("Failed to update resume data.");
+  }
+}
+
+// Function to generate a random password (you can adjust this method)
+function generateRandomPassword() {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+  let password = "";
+  for (let i = 0; i < 12; i++) {
+    password += characters.charAt(
+      Math.floor(Math.random() * characters.length)
+    );
+  }
+  return password;
+}
+
+// Function to send password to email using nodemailer
+async function sendPasswordToEmail(email, password) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail", // You can use any service like SendGrid or SMTP
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS, // You should use environment variables for security
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Your Peperk resume - Jobseeker Account Password",
+    text: `Welcome to the platform! Your account has been created. Here is your password: ${password}`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Password sent to email!");
+  } catch (error) {
+    console.error("Error sending email:", error);
   }
 }

@@ -58,7 +58,7 @@ const Sidebar = ({ name }) => {
       icon: <BookCheckIcon size={20} />,
     },
     {
-      title: "Resume builder",
+      title: "AI Resume builder",
       path: "/jobseeker/profile/resumebuilder",
       icon: <BookCheckIcon size={20} />,
     },

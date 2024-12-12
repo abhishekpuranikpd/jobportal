@@ -120,7 +120,7 @@ const ResumeBuilder = () => {
 
       const result = await response.json();
       console.log("Generated data:", result); // Log the result to check if formData is as expected
-      router.push("/jobseeker/profile/resumebuilder/resumeedit");
+      router.push("/resumebuilder/resumeedit");
     } catch (error) {
       console.error("Error:", error);
     }

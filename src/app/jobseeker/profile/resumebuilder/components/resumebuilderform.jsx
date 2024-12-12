@@ -3,15 +3,16 @@ import React, { useState } from "react";
 import { jsPDF } from "jspdf";
 import { useRouter } from "next/navigation";
 
-const ResumeBuilder = () => {
+const ResumeBuilder = ({ data }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "", lastName : "" ,
-    email: "",
-    phone: "",
-    aboutMe: "",
-    education: [
+    firstName: data?.firstName || "",
+    lastName: data?.lastName || "",
+    email: data?.email || "",
+    phone: data?.phone || "",
+    aboutMe: data?.aboutMe || "",
+    education: data?.education ? JSON.parse(data.education)  :  [
       {
         institution: "",
         university: "",
@@ -21,25 +22,24 @@ const ResumeBuilder = () => {
         grade: "",
       },
     ],
- workExperience : [
+    workExperience: data?.workExperience ? JSON.parse(data.workExperience) : [
       {
         company: "",
         position: "",
-        fromDate: "",  // Start date (MM/YYYY)
-        toDate: "",    // End date (MM/YYYY)
-        location: "",  // Location of the job
+        fromDate: "", // Start date (MM/YYYY)
+        toDate: "", // End date (MM/YYYY)
+        location: "", // Location of the job
         department: "", // Department in which the person worked
-        teamSize: "",   // Size of the team (optional)
+        teamSize: "", // Size of the team (optional)
         positionsUnderYou: "", // Positions under the person (if any)
-        hadTeam: "",    // Yes/No (whether they managed a team)
-        responsibilities: "",  // Job responsibilities
-      }
-    ],
-    
-    skills: "",
-    hobbies: "",
-    certifications: [{ name: "", organization: "", year: "" }],
-    address: { street: "", city: "", state: "", zip: "" },
+        hadTeam: "", // Yes/No (whether they managed a team)
+        responsibilities: "", // Job responsibilities
+      },
+      ],
+    skills: data?.skills || "",
+    hobbies: data?.hobbies || "",
+    certifications: data?.certifications || [{ name: "", organization: "", year: "" }],
+    address: data?.address || { street: data.addressStreet ||  "", city: data.addressCity || "", state: data.addressState || "", zip: data.addressZip ||  "" },
   });
 
   const handleInputChange = (e) => {
@@ -83,16 +83,18 @@ const ResumeBuilder = () => {
       ...prevData,
       workExperience: [
         ...prevData.workExperience,
-        {  company: "",
+        {
+          company: "",
           position: "",
-          fromDate: "",  
-          toDate: "",    // End date (MM/YYYY)
-          location: "",  // Location of the job
+          fromDate: "",
+          toDate: "", // End date (MM/YYYY)
+          location: "", // Location of the job
           department: "", // Department in which the person worked
-          teamSize: "",   // Size of the team (optional)
+          teamSize: "", // Size of the team (optional)
           positionsUnderYou: "", // Positions under the person (if any)
-          hadTeam: "",    
-          responsibilities: "" }
+          hadTeam: "",
+          responsibilities: "",
+        },
       ],
     }));
   };
@@ -103,7 +105,7 @@ const ResumeBuilder = () => {
     e.preventDefault();
 
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await fetch("/api/jobseeker/resumebuilderai", {
         method: "POST",
         headers: {
@@ -155,7 +157,7 @@ const ResumeBuilder = () => {
           </div>
           <div className="w-full md:w-1/3">
             <label className="block text-sm font-medium" htmlFor="lastName">
-             Last Name
+              Last Name
             </label>
             <input
               type="text"
@@ -186,14 +188,14 @@ const ResumeBuilder = () => {
 
           {/* Phone Number */}
           <div className="w-full md:w-1/3 mt-4 md:mt-0">
-            <label className="block text-sm font-medium" htmlFor="phoneNumber">
+            <label className="block text-sm font-medium" htmlFor="phone">
               Phone Number
             </label>
             <input
               type="text"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
+              id="phone"
+              name="phone"
+              value={formData.phone}
               onChange={handleInputChange}
               className="w-full p-2 border rounded-xl mt-1"
               required
@@ -651,18 +653,21 @@ const ResumeBuilder = () => {
             Add Certification
           </button>
         </div>
-  {      loading ?     <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded-xl"
-        >
-          Please Wait
-        </button> :
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded-xl"
-        >
-          Generate Resume And Save to Your Device
-        </button>}
+        {loading ? (
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white p-2 rounded-xl"
+          >
+            Please Wait
+          </button>
+        ) : (
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white p-2 rounded-xl"
+          >
+            Generate Resume And Save to Your Device
+          </button>
+        )}
       </form>
     </div>
   );

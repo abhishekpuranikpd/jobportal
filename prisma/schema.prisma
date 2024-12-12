@@ -72,7 +72,7 @@ model Jobseeker {
   password              String
   phone                 String?
   profileimg            String?
-  jobPreference         JobPreference
+  jobPreference         JobPreference?
   skills                String[]
   education             Education[]
   workExperience        WorkExperience[]

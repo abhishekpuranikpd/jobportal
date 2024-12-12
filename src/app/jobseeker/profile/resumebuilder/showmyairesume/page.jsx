@@ -1,9 +1,8 @@
-import React from 'react'
-import ResumeBuilderForm from './components/resumebuilderform'
-import { getSession } from '@/lib/jobseekerauth';
-import { db } from '@/lib/db';
+import { db } from "@/lib/db";
+import { getSession } from "@/lib/jobseekerauth";
+import Showmyresume from "../components/showmyresume";
 
-const page =async () => {
+const ShowMyresume = async () => {
   try {
     const usermail = await getSession();
     if (!usermail || !usermail.email) {
@@ -27,12 +26,13 @@ const page =async () => {
 
 
     return (
-  <><ResumeBuilderForm data={data}/></>
+  <><Showmyresume data={data}/></>
     );
   } catch (error) {
     console.error(error);
     return <div>Error loading resume data: {error.message}</div>;
   }
-}
+};
 
-export default page
+
+export default ShowMyresume
