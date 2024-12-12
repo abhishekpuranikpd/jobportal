@@ -154,13 +154,13 @@ const ResumeBuilder = () => {
             />
           </div>
           <div className="w-full md:w-1/3">
-            <label className="block text-sm font-medium" htmlFor="lastname">
+            <label className="block text-sm font-medium" htmlFor="lastName">
              Last Name
             </label>
             <input
               type="text"
-              id="lastname"
-              name="lastname"
+              id="lastName"
+              name="lastName"
               value={formData.lastName}
               onChange={handleInputChange}
               className="w-full p-2 border rounded-xl mt-1"
