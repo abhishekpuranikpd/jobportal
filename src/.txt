@@ -234,3 +234,259 @@ function isJson(str) {
   Input:
   ${JSON.stringify(formData)}
   `;
+//
+
+
+
+"use client";
+import React, { useEffect, useState, useRef } from "react";
+import { PDFExport } from "@progress/kendo-react-pdf";
+import { Star } from "lucide-react"; // Importing Lucide Star icon
+
+const Showmyresume = ({ data }) => {
+  const pdfExportComponent = useRef(null); // Reference to the PDFExport component
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const generatePdf = () => {
+    if (pdfExportComponent.current) {
+      pdfExportComponent.current.save();
+    }
+  };
+
+  if (!isClient) {
+    return null; // Prevent SSR issues by not rendering this component on the server side
+  }
+
+  return (
+    <div
+      style={{
+        fontFamily: "Arial, sans-serif",
+        padding: "20px",
+        backgroundColor: "#f4f7fa",
+        minHeight: "100vh",
+      }}
+    >
+      <PDFExport ref={pdfExportComponent} paperSize="A4" margin={40}>
+        <div
+          style={{
+            maxWidth: "800px",
+            margin: "0 auto",
+            border: "2px solid #007BFF",
+            padding: "30px",
+            backgroundColor: "#ffffff",
+            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+            borderRadius: "12px",
+            wordWrap: "break-word",
+            fontSize: "16px", // Standard font size for better readability
+            boxSizing: "border-box",
+          }}
+        >
+          <header style={{ textAlign: "center", marginBottom: "2px" }}>
+            <h1
+              style={{
+                fontSize: "36px",
+                fontWeight: "bold",
+                color: "#333",
+                marginBottom: "5px",
+              }} className="font-bold"
+            >
+              {data?.firstName} {data?.lastName}
+            </h1>
+            <p
+              style={{
+                fontSize: "18px",
+                fontStyle: "italic",
+                color: "#666",
+                marginBottom: "10px",
+              }}
+            >
+              {data?.email} | {data?.phone}
+            </p>
+          </header>
+
+          {/* About Me Section */}
+          <section style={{ marginBottom: "2px" }}>
+            <h2
+              style={{
+                fontSize: "30px",
+                borderBottom: "3px solid #007BFF",
+                color: "#333",
+                paddingBottom: "10px",
+                marginBottom: "10px",
+              }} className="font-semibold"
+            >
+              About Me
+            </h2>
+            <p style={{ fontSize: "18px", lineHeight: "1.6" }}>{data?.aboutMe}</p>
+          </section>
+
+          {/* Skills Section */}
+          <section style={{ marginBottom: "2px" }}>
+            <h2
+              style={{
+                fontSize: "30px",
+                borderBottom: "3px solid #007BFF",
+                color: "#333",
+                paddingBottom: "10px",
+                marginBottom: "10px",
+              }}
+            >
+              Skills
+            </h2>
+            <p style={{ fontSize: "18px", lineHeight: "1.6" }}>{data?.skills}</p>
+          </section>
+
+          {/* Hobbies Section */}
+          <section style={{ marginBottom: "2px" }}>
+            <h2
+              style={{
+                fontSize: "30px",
+                borderBottom: "3px solid #007BFF",
+                color: "#333",
+                paddingBottom: "10px",
+                marginBottom: "10px",
+              }}
+            >
+              Hobbies
+            </h2>
+            <p style={{ fontSize: "18px", lineHeight: "1.6" }}>{data?.hobbies}</p>
+          </section>
+
+          {/* Education Section */}
+          <section style={{ marginBottom: "2px" }}>
+            <h2
+              style={{
+                fontSize: "30px",
+                borderBottom: "3px solid #007BFF",
+                color: "#333",
+                paddingBottom: "10px",
+                marginBottom: "10px",
+              }}
+            >
+              Education
+            </h2>
+            {(data?.education &&
+              Array.isArray(JSON.parse(data.education))
+              ? JSON.parse(data.education)
+              : []
+            ).map((edu, index) => (
+              <div key={index} style={{ marginBottom: "10px" }}>
+                <h3 style={{ fontSize: "22px", color: "#333" }}>
+                  {edu.institution}
+                  {edu.degree && ` - ${edu.degree}`}{" "}
+                  {edu.year && `(${edu.year})`}
+                </h3>
+                <p style={{ fontSize: "18px" }}>
+                  {edu.university && `${edu.university} | `}
+                  {edu.city && `${edu.city} | `}
+                  {edu.grade && `Grade: ${edu.grade}`}
+                </p>
+              </div>
+            ))}
+          </section>
+
+          {/* Work Experience Section */}
+          <section style={{ marginBottom: "2px" }}>
+            <h2
+              style={{
+                fontSize: "30px",
+                borderBottom: "3px solid #007BFF",
+                color: "#333",
+                paddingBottom: "10px",
+                marginBottom: "10px",
+              }}
+            >
+              Work Experience
+            </h2>
+            {(data?.workExperience &&
+              Array.isArray(JSON.parse(data.workExperience))
+              ? JSON.parse(data.workExperience)
+              : []
+            ).map((work, index) => (
+              <div key={index} style={{ marginBottom: "20px" }}>
+                <h3 style={{ fontSize: "22px", color: "#333" }}>
+                  {work.company} - {work.position}
+                </h3>
+                <p style={{ fontSize: "18px" }}>
+                  {work.fromDate} - {work.toDate} | {work.location}
+                </p>
+                <p style={{ fontSize: "18px" }}>
+                  <strong>Responsibilities:</strong> {work.responsibilities}
+                </p>
+              </div>
+            ))}
+          </section>
+
+          {/* Certifications Section */}
+          <section style={{ marginBottom: "2px" }}>
+            <h2
+              style={{
+                fontSize: "30px",
+                borderBottom: "3px solid #007BFF",
+                color: "#333",
+                paddingBottom: "10px",
+                marginBottom: "10px",
+              }}
+            >
+              Certifications
+            </h2>
+            {(data?.certifications && Array.isArray(data.certifications)
+              ? data.certifications
+              : []
+            ).map((cert, index) => (
+              <div key={index} style={{ marginBottom: "10px" }}>
+                <p style={{ fontSize: "18px" }}>
+                  <strong>{cert.name}</strong> - {cert.organization} ({cert.year})
+                </p>
+              </div>
+            ))}
+          </section>
+
+          {/* Address Section */}
+          <section style={{ marginBottom: "2px" }}>
+            <h2
+              style={{
+                fontSize: "30px",
+                borderBottom: "3px solid #007BFF",
+                color: "#333",
+                paddingBottom: "10px",
+                marginBottom: "10px",
+              }}
+            >
+              Address
+            </h2>
+            <p style={{ fontSize: "18px" }}>
+              {data?.addressStreet}, {data?.addressCity}, {data?.addressState} -{" "}
+              {data?.addressZip}
+            </p>
+          </section>
+        </div>
+      </PDFExport>
+
+      {/* PDF Download Button */}
+      <div style={{ textAlign: "center", marginTop: "30px" }}>
+        <button
+          onClick={generatePdf}
+          style={{
+            backgroundColor: "#007BFF",
+            color: "white",
+            fontSize: "18px",
+            padding: "12px 24px",
+            borderRadius: "8px",
+            border: "none",
+            cursor: "pointer",
+            transition: "background-color 0.3s ease",
+          }}
+        >
+          Download Resume as PDF
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Showmyresume;

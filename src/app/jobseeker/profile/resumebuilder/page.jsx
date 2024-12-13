@@ -1,9 +1,11 @@
-import React from 'react'
-import ResumeBuilderForm from './components/resumebuilderform'
+import React from 'react';
+import ResumeBuilderForm from './components/resumebuilderform';
 import { getSession } from '@/lib/jobseekerauth';
 import { db } from '@/lib/db';
 
-const page =async () => {
+const page = async () => {
+  let data = null; // Default to null in case no data is found.
+
   try {
     const usermail = await getSession();
     if (!usermail || !usermail.email) {
@@ -17,22 +19,21 @@ const page =async () => {
       throw new Error("Jobseeker not found");
     }
 
-    const data = await db.AIResumeGeneratedData.findFirst({
+    data = await db.AIResumeGeneratedData.findFirst({
       where: { jobseekerId: jobseeker.id },
     });
-    
-    if (!data) {
-      throw new Error("Resume data not found");
-    }
 
-
-    return (
-  <><ResumeBuilderForm data={data}/></>
-    );
+    // If data is null, we allow the fallback rendering.
   } catch (error) {
-    console.error(error);
-    return <div>Error loading resume data: {error.message}</div>;
+    console.error("Error loading resume data:", error);
   }
-}
 
-export default page
+  // Render the form regardless of whether data exists or not.
+  return (
+    <div>
+      <ResumeBuilderForm data={data} />
+    </div>
+  );
+};
+
+export default page;

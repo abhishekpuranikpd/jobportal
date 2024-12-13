@@ -3,43 +3,54 @@ import React, { useState } from "react";
 import { jsPDF } from "jspdf";
 import { useRouter } from "next/navigation";
 
-const ResumeBuilderEdit = ({data}) => {
+const ResumeBuilderEdit = ({ data }) => {
   const router = useRouter();
-
+const [loading, setloading] = useState(false)
   const [formData, setFormData] = useState({
     firstName: data?.firstName || "",
     lastName: data?.lastName || "",
     email: data?.email || "",
     phone: data?.phone || "",
     aboutMe: data?.aboutMe || "",
-    education: data?.education ? JSON.parse(data.education)  :  [
-      {
-        institution: "",
-        university: "",
-        city: "",
-        year: "",
-        Gradingsystem: "",
-        grade: "",
-      },
-    ],
-    workExperience: data?.workExperience ? JSON.parse(data.workExperience) : [
-      {
-        company: "",
-        position: "",
-        fromDate: "", // Start date (MM/YYYY)
-        toDate: "", // End date (MM/YYYY)
-        location: "", // Location of the job
-        department: "", // Department in which the person worked
-        teamSize: "", // Size of the team (optional)
-        positionsUnderYou: "", // Positions under the person (if any)
-        hadTeam: "", // Yes/No (whether they managed a team)
-        responsibilities: "", // Job responsibilities
-      },
-      ],
+    education: data?.education
+      ? JSON.parse(data.education)
+      : [
+          {
+            institution: "",
+            university: "",
+            city: "",
+            year: "",
+            Gradingsystem: "",
+            grade: "",
+          },
+        ],
+    workExperience: data?.workExperience
+      ? JSON.parse(data.workExperience)
+      : [
+          {
+            company: "",
+            position: "",
+            fromDate: "", // Start date (MM/YYYY)
+            toDate: "", // End date (MM/YYYY)
+            location: "", // Location of the job
+            department: "", // Department in which the person worked
+            teamSize: "", // Size of the team (optional)
+            positionsUnderYou: "", // Positions under the person (if any)
+            hadTeam: "", // Yes/No (whether they managed a team)
+            responsibilities: "", // Job responsibilities
+          },
+        ],
     skills: data?.skills || "",
     hobbies: data?.hobbies || "",
-    certifications: data?.certifications || [{ name: "", organization: "", year: "" }],
-    address: data?.address || { street: data.addressStreet ||  "", city: data.addressCity || "", state: data.addressState || "", zip: data.addressZip ||  "" },
+    certifications: data?.certifications || [
+      { name: "", organization: "", year: "" },
+    ],
+    address: data?.address || {
+      street: data.addressStreet || "",
+      city: data.addressCity || "",
+      state: data.addressState || "",
+      zip: data.addressZip || "",
+    },
   });
 
   // Handle changes for general fields
@@ -62,7 +73,6 @@ const ResumeBuilderEdit = ({data}) => {
       },
     }));
   };
-
 
   const handleAddEducation = () => {
     setFormData((prevData) => ({
@@ -104,8 +114,11 @@ const ResumeBuilderEdit = ({data}) => {
   // Submit the form
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
+      // Set loading to true before the request starts
+      setloading(true);
+  
       const response = await fetch(`/api/jobseeker/resumebuilderai/${data.id}`, {
         method: "PUT",
         headers: {
@@ -113,35 +126,43 @@ const ResumeBuilderEdit = ({data}) => {
         },
         body: JSON.stringify(formData),
       });
-
+  
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error response:", errorText);
         throw new Error("Error saving resume");
       }
-
+  
       const result = await response.json();
       console.log("Saved data:", result);
-      // Call a PDF generation function or success handling
-      generateModernPDF(result.formData);
+  
+      // Show alert upon successful edit
+      alert("Resume saved successfully!");
+  
+      // Redirect to the success page
+      router.push("/jobseeker/profile/resumebuilder/showmyairesume");
+  
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      // Set loading to false after the request completes
+      setloading(false);
     }
   };
+  
 
   return (
-    <div className="container mt-8 mx-auto p-6 md:pb-8 pb-96 bg-white shadow-lg rounded-lg max-w-2xl">
+    <div className="container mt-8 mx-auto p-6 md:pb-8 pb-96  shadow-lg rounded-lg max-w-2xl">
       <h1 className="text-xl font-bold text-center mb-1">
-        Resume Builder from Peperk.in 
+      Edit Your Resume
       </h1>
       <h1 className="text-sm font-normal text-center mb-6">
         (After Generating upload into resume section)
       </h1>
 
-
       <form onSubmit={handleFormSubmit} className="space-y-6">
-               {/* Personal Details */}
-               <div className="flex flex-col  md:flex-row md:space-x-4">
+        {/* Personal Details */}
+        <div className="flex flex-col  md:flex-row md:space-x-4">
           {/* Full Name */}
           <div className="w-full md:w-1/3">
             <label className="block text-sm font-medium" htmlFor="firstName">
@@ -658,11 +679,13 @@ const ResumeBuilderEdit = ({data}) => {
         </div>
 
         <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded-md"
-        >
-          Update Resume And Save to Your Device
-        </button>
+  type="submit"
+  className="w-full bg-blue-500 text-white p-2 rounded-md"
+  disabled={loading} // Disable the button when loading
+>
+  {loading ? "Please Wait..." : "Update Resume And Save to Your Device"}
+</button>
+
       </form>
     </div>
   );

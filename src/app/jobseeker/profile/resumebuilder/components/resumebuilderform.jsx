@@ -7,39 +7,52 @@ const ResumeBuilder = ({ data }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: data?.firstName || "",
-    lastName: data?.lastName || "",
-    email: data?.email || "",
-    phone: data?.phone || "",
-    aboutMe: data?.aboutMe || "",
-    education: data?.education ? JSON.parse(data.education)  :  [
-      {
-        institution: "",
-        university: "",
-        city: "",
-        year: "",
-        Gradingsystem: "",
-        grade: "",
-      },
-    ],
-    workExperience: data?.workExperience ? JSON.parse(data.workExperience) : [
-      {
-        company: "",
-        position: "",
-        fromDate: "", // Start date (MM/YYYY)
-        toDate: "", // End date (MM/YYYY)
-        location: "", // Location of the job
-        department: "", // Department in which the person worked
-        teamSize: "", // Size of the team (optional)
-        positionsUnderYou: "", // Positions under the person (if any)
-        hadTeam: "", // Yes/No (whether they managed a team)
-        responsibilities: "", // Job responsibilities
-      },
-      ],
-    skills: data?.skills || "",
-    hobbies: data?.hobbies || "",
-    certifications: data?.certifications || [{ name: "", organization: "", year: "" }],
-    address: data?.address || { street: data.addressStreet ||  "", city: data.addressCity || "", state: data.addressState || "", zip: data.addressZip ||  "" },
+    firstName: data?.firstName ?? null,
+    lastName: data?.lastName ?? null,
+    email: data?.email ?? null,
+    phone: data?.phone ?? null,
+    aboutMe: data?.aboutMe ?? null,
+    education: data?.education
+      ? JSON.parse(data.education)
+      : [
+          {
+            institution: null,
+            university: null,
+            city: null,
+            year: null,
+            Gradingsystem: null,
+            grade: null,
+          },
+        ],
+    workExperience: data?.workExperience
+      ? JSON.parse(data.workExperience)
+      : [
+          {
+            company: null,
+            position: null,
+            fromDate: null, // Start date (MM/YYYY)
+            toDate: null, // End date (MM/YYYY)
+            location: null, // Location of the job
+            department: null, // Department in which the person worked
+            teamSize: null, // Size of the team (optional)
+            positionsUnderYou: null, // Positions under the person (if any)
+            hadTeam: null, // Yes/No (whether they managed a team)
+            responsibilities: null, // Job responsibilities
+          },
+        ],
+    skills: data?.skills ?? null,
+    hobbies: data?.hobbies ?? null,
+    certifications: data?.certifications
+      ? data.certifications
+      : [{ name: null, organization: null, year: null }],
+    address: data?.address
+      ? {
+          street: data.address.street ?? null,
+          city: data.address.city ?? null,
+          state: data.address.state ?? null,
+          zip: data.address.zip ?? null,
+        }
+      : { street: null, city: null, state: null, zip: null },
   });
 
   const handleInputChange = (e) => {
@@ -372,7 +385,7 @@ const ResumeBuilder = ({ data }) => {
         <div>
           <label className="block text-sm font-medium">Work Experience</label>
           {formData.workExperience.map((exp, idx) => (
-            <div key={idx} className="space-y-4">
+            <div key={idx} className="space-y-4 border-b pb-4 mb-4">
               <input
                 type="text"
                 name="company"
@@ -406,40 +419,49 @@ const ResumeBuilder = ({ data }) => {
               />
 
               {/* Duration: From Date */}
-              <div className="flex space-x-2">
-                <input
-                  type="month"
-                  name="fromDate"
-                  value={exp.fromDate}
-                  placeholder="From Date"
-                  onChange={(e) => {
-                    const updatedWorkExperience = [...formData.workExperience];
-                    updatedWorkExperience[idx].fromDate = e.target.value;
-                    setFormData({
-                      ...formData,
-                      workExperience: updatedWorkExperience,
-                    });
-                  }}
-                  className="w-1/2 p-3 border rounded-xl mt-1 shadow-sm appearance-none"
-                />
-                {/* Duration: To Date */}
-                <input
-                  type="month"
-                  name="toDate"
-                  value={exp.toDate}
-                  onChange={(e) => {
-                    const updatedWorkExperience = [...formData.workExperience];
-                    updatedWorkExperience[idx].toDate = e.target.value;
-                    setFormData({
-                      ...formData,
-                      workExperience: updatedWorkExperience,
-                    });
-                  }}
-                  className="w-1/2 p-3 border rounded-xl mt-1 shadow-sm"
-                />
+              <div className="flex flex-col sm:flex-row sm:space-x-2">
+                <div className="w-full sm:w-1/2">
+                  <label className="block text-sm font-medium">From Date</label>
+                  <input
+                    type="month"
+                    name="fromDate"
+                    value={exp.fromDate}
+                    onChange={(e) => {
+                      const updatedWorkExperience = [
+                        ...formData.workExperience,
+                      ];
+                      updatedWorkExperience[idx].fromDate = e.target.value;
+                      setFormData({
+                        ...formData,
+                        workExperience: updatedWorkExperience,
+                      });
+                    }}
+                    max={new Date().toISOString().slice(0, 7)} // Max date is today
+                    className="w-full p-3 border rounded-xl mt-1 shadow-sm appearance-none"
+                  />
+                </div>
+                <div className="w-full sm:w-1/2">
+                  <label className="block text-sm font-medium">To Date</label>
+                  <input
+                    type="month"
+                    name="toDate"
+                    value={exp.toDate}
+                    onChange={(e) => {
+                      const updatedWorkExperience = [
+                        ...formData.workExperience,
+                      ];
+                      updatedWorkExperience[idx].toDate = e.target.value;
+                      setFormData({
+                        ...formData,
+                        workExperience: updatedWorkExperience,
+                      });
+                    }}
+                    max={new Date().toISOString().slice(0, 7)} // Max date is today
+                    className="w-full p-3 border rounded-xl mt-1 shadow-sm appearance-none"
+                  />
+                </div>
               </div>
 
-              {/* Location */}
               <input
                 type="text"
                 name="location"
@@ -456,7 +478,6 @@ const ResumeBuilder = ({ data }) => {
                 className="w-full p-3 border rounded-xl mt-1 shadow-sm"
               />
 
-              {/* Department */}
               <input
                 type="text"
                 name="department"
@@ -473,7 +494,6 @@ const ResumeBuilder = ({ data }) => {
                 className="w-full p-3 border rounded-xl mt-1 shadow-sm"
               />
 
-              {/* Team Size */}
               <select
                 name="teamSize"
                 value={exp.teamSize}
@@ -494,7 +514,6 @@ const ResumeBuilder = ({ data }) => {
                 <option value="20+">20+</option>
               </select>
 
-              {/* Positions under you */}
               <input
                 type="text"
                 name="positionsUnderYou"
@@ -511,7 +530,6 @@ const ResumeBuilder = ({ data }) => {
                 className="w-full p-3 border rounded-xl mt-1 shadow-sm"
               />
 
-              {/* Team: Yes/No */}
               <select
                 name="hadTeam"
                 value={exp.hadTeam}
@@ -530,7 +548,6 @@ const ResumeBuilder = ({ data }) => {
                 <option value="no">No</option>
               </select>
 
-              {/* Responsibilities */}
               <textarea
                 name="responsibilities"
                 placeholder="Responsibilities"
